@@ -1,0 +1,10 @@
+POST http://localhost:8586/transaction
+Content-Type: application/json
+
+{
+  "id": "1",
+  "account_id": "1",
+  "amount": 0
+}
+
+###

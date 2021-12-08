@@ -1,8 +1,8 @@
 package process_transaction
 
 import (
-	"fmt"
 	"github.com/augusto/imersao5-esquenta-go/entity"
+	"log"
 )
 
 type ProcessTransacion struct {
@@ -14,19 +14,22 @@ func NewProcessTransaction(repository entity.TransactionRepository) *ProcessTran
 }
 
 func (p *ProcessTransacion) Execute(input TransactionDtoInput) (TransactionDtoOutput, error) {
-	fmt.Println("Starting transaction...")
+	log.Println("Starting transaction...")
 	transaction := entity.NewTransaction()
 	transaction.ID = input.ID
 	transaction.AccountID = input.AccountID
 	transaction.Amount = input.Amount
 	invalidTransaction := transaction.IsValid()
 
-	fmt.Println("Validating transaction....")
+	//Chamando a função de teste
+	transaction.Teste()
+
+	log.Println("Validating transaction....")
 	if invalidTransaction != nil {
-		fmt.Println("Invalid transaction!")
+		log.Println("Invalid transaction!")
 		return p.rejectTransaction(transaction, invalidTransaction)
 	}
-	fmt.Println("Valid transaction!")
+	log.Println("Valid transaction!")
 	return p.approveTransaction(transaction, invalidTransaction)
 
 }

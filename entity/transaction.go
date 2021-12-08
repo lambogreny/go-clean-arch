@@ -2,6 +2,7 @@ package entity
 
 import (
 	"errors"
+	"fmt"
 )
 
 type Transaction struct {
@@ -25,6 +26,13 @@ func (t *Transaction) IsValid() error {
 	if t.Amount < 1 {
 		return errors.New("the amount must be greater than 1")
 	}
+
+	return nil
+}
+
+//Função teste
+func (t *Transaction) Teste() error {
+	fmt.Println("Teste")
 
 	return nil
 }
