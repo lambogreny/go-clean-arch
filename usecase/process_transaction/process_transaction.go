@@ -48,10 +48,11 @@ func (p *ProcessTransacion) approveTransaction(transaction *entity.Transaction, 
 }
 
 func (p *ProcessTransacion) rejectTransaction(transaction *entity.Transaction, invalidTransaction error) (TransactionDtoOutput, error) {
-	err := p.Repository.Insert(transaction.ID, transaction.AccountID, transaction.Amount, "rejected", invalidTransaction.Error())
-	if err != nil {
-		return TransactionDtoOutput{}, err
-	}
+	//Não insere no banco se nao for válido
+	//err := p.Repository.Insert(transaction.ID, transaction.AccountID, transaction.Amount, "rejected", invalidTransaction.Error())
+	//if err != nil {
+	//	return TransactionDtoOutput{}, err
+	//}
 	output := TransactionDtoOutput{
 		ID:           transaction.ID,
 		Status:       "rejected",

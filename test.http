@@ -1,10 +1,30 @@
+
+### Helth Check do server gin
+GET http://localhost:8080/health
+Accept: application/json
+
+### Transaction do Servidor echo
 POST http://localhost:8586/transaction
 Content-Type: application/json
 
 {
   "id": "1",
   "account_id": "1",
-  "amount": 0
+  "amount": 100000
 }
 
-###
+###API DESKTOP
+
+POST /api/v1/technicalViability HTTP/1.1
+Content-Type: application/json
+Host: 172.30.0.77:8882
+Content-Length: 75
+
+{
+  "lat": "0",
+  "lng": "0",
+  "city": "augusto",
+  "state": "ckpmcwioecwre"
+}
+
+

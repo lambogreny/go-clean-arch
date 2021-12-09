@@ -11,7 +11,7 @@ Gerando o mock do repositório
 .go
 `
 
-Rodando o comando no cmd
+Rodando o comando no cmd (roda o server principal)
 `go run .\cmd\main.go`
 
 Acessando o banco sqlite3(sempre colocar o ; no final do comando sql)

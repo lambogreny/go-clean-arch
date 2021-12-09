@@ -2,12 +2,14 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"github.com/augusto/imersao5-esquenta-go/adapter/api"
 	"github.com/augusto/imersao5-esquenta-go/adapter/repository"
 	_ "github.com/mattn/go-sqlite3"
 	"log"
 )
 
+//Examplo inserindo o dado na mão
 //func main() {
 //
 //	var amount float64 = 5
@@ -48,7 +50,13 @@ func main() {
 	}
 
 	repo := repository.NewTransactionRepositoryDb(db)
-	webserver := api.NewWebServer()
-	webserver.Repository = repo
-	webserver.Serve()
+	fmt.Println(repo)
+
+	//Iniciar a api Echo
+	//webserver := api.NewWebServer()
+	//webserver.Repository = repo
+	//webserver.Serve()
+
+	//Inicia a api Gin
+	api.Init()
 }

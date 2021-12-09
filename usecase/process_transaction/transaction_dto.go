@@ -1,9 +1,9 @@
 package process_transaction
 
 type TransactionDtoInput struct {
-	ID        string  `json:"id"`
-	AccountID string  `json:"account_id"`
-	Amount    float64 `json:"amount"`
+	ID        string  `json:"id" binding:"required"`
+	AccountID string  `json:"account_id" binding:"required"`
+	Amount    float64 `json:"amount"  binding:"required"`
 }
 
 type TransactionDtoOutput struct {
