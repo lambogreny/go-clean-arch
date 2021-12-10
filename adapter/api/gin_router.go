@@ -2,6 +2,8 @@ package api
 
 import (
 	"github.com/augusto/imersao5-esquenta-go/adapter/api/controllers"
+	"github.com/augusto/imersao5-esquenta-go/midllewares"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -9,6 +11,9 @@ func NewRouter() *gin.Engine {
 	router := gin.New()
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
+	router.Use(midllewares.BasicAuth())           //Basic auth
+	router.Use(midllewares.RequestIdMiddleware()) //Id do request
+	router.Use(midllewares.CheckClientToken())    //Valida se há api key
 
 	v1 := router.Group("/v1")
 

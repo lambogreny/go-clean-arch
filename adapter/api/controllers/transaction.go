@@ -1,12 +1,11 @@
 package controllers
 
 import (
-	"database/sql"
 	"fmt"
 	"github.com/augusto/imersao5-esquenta-go/adapter/repository"
 	"github.com/augusto/imersao5-esquenta-go/usecase/process_transaction"
+	"github.com/augusto/imersao5-esquenta-go/utils"
 	"github.com/gin-gonic/gin"
-	"log"
 	"net/http"
 )
 
@@ -14,11 +13,11 @@ type TransactionController struct {
 }
 
 func (t TransactionController) NewTransaction(c *gin.Context) {
-	db, err := sql.Open("sqlite3", "test.db")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
+
+	DB := utils.DatabaseConnection(c.Request.Header.Get("x-token")) //Função de database
+
+	//Header do request
+	//fmt.Println(c.Request.Header.Get("x-token"))
 
 	var inputData process_transaction.TransactionDtoInput
 
@@ -32,15 +31,14 @@ func (t TransactionController) NewTransaction(c *gin.Context) {
 		return
 	}
 
-	repo := repository.NewTransactionRepositoryDb(db)
+	repo := repository.NewTransactionRepositoryDb(DB)
 	usecase := process_transaction.NewProcessTransaction(repo)
 	output, err := usecase.Execute(inputData)
 
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	//fmt.Println(output)
+	fmt.Println(output)
 
-	//c.String(http.StatusOK, "Working!")
 	c.JSON(http.StatusOK, output)
 }

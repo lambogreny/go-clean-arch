@@ -1,12 +1,8 @@
 package main
 
 import (
-	"database/sql"
-	"fmt"
 	"github.com/augusto/imersao5-esquenta-go/adapter/api"
-	"github.com/augusto/imersao5-esquenta-go/adapter/repository"
 	_ "github.com/mattn/go-sqlite3"
-	"log"
 )
 
 //Examplo inserindo o dado na mão
@@ -43,14 +39,14 @@ import (
 
 func main() {
 
-	db, err := sql.Open("sqlite3", "test.db")
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	repo := repository.NewTransactionRepositoryDb(db)
-	fmt.Println(repo)
+	//db, err := sql.Open("sqlite3", "test.db")
+	//
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
+	//
+	//repo := repository.NewTransactionRepositoryDb(db)
+	//fmt.Println(repo)
 
 	//Iniciar a api Echo
 	//webserver := api.NewWebServer()
