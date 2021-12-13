@@ -1,6 +1,7 @@
 package process_transaction
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/augusto/imersao5-esquenta-go/entity"
@@ -14,25 +15,24 @@ func NewProcessTransaction(repository entity.TransactionRepository) *ProcessTran
 	return &ProcessTransacion{Repository: repository}
 }
 
-func (p *ProcessTransacion) GetAll() (entity.Transaction, error) {
+func (p *ProcessTransacion) GetAll() ([]entity.Transaction, error) {
 	log.Println("Getting transaction...")
 
-	// err := p.Repository.Select()
-
-	return entity.Transaction{}, nil
+	err := p.Repository.Select()
+	fmt.Println(err)
+	return p.Repository.Select(), nil
 
 }
 
 func (p *ProcessTransacion) Execute(input TransactionDtoInput) (TransactionDtoOutput, error) {
 	log.Println("Starting transaction...")
 	transaction := entity.NewTransaction()
-	transaction.ID = input.ID
 	transaction.AccountID = input.AccountID
 	transaction.Amount = input.Amount
 	invalidTransaction := transaction.IsValid()
 
 	//Chamando a função de teste
-	transaction.Teste()
+	//transaction.Teste()
 
 	log.Println("Validating transaction....")
 	if invalidTransaction != nil {
@@ -45,13 +45,12 @@ func (p *ProcessTransacion) Execute(input TransactionDtoInput) (TransactionDtoOu
 }
 
 func (p *ProcessTransacion) approveTransaction(transaction *entity.Transaction, invalidTransaction error) (TransactionDtoOutput, error) {
-	err := p.Repository.Insert(transaction.ID, transaction.AccountID, transaction.Amount, "approved", "")
+	err := p.Repository.Insert(transaction.AccountID, transaction.Amount, "approved", "")
 	if err != nil {
 		//return TransactionDtoOutput{}, err
 		return TransactionDtoOutput{}, err
 	}
 	output := TransactionDtoOutput{
-		ID:           transaction.ID,
 		Status:       "approved",
 		ErrorMessage: "",
 	}
@@ -60,12 +59,8 @@ func (p *ProcessTransacion) approveTransaction(transaction *entity.Transaction, 
 
 func (p *ProcessTransacion) rejectTransaction(transaction *entity.Transaction, invalidTransaction error) (TransactionDtoOutput, error) {
 	//Não insere no banco se nao for válido
-	//err := p.Repository.Insert(transaction.ID, transaction.AccountID, transaction.Amount, "rejected", invalidTransaction.Error())
-	//if err != nil {
-	//	return TransactionDtoOutput{}, err
-	//}
+
 	output := TransactionDtoOutput{
-		ID:           transaction.ID,
 		Status:       "rejected",
 		ErrorMessage: invalidTransaction.Error(),
 	}

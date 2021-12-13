@@ -23,7 +23,7 @@ func NewRouter() *gin.Engine {
 
 	v1.GET("/health", health.Status)
 	v1.POST("/transaction", transaction.NewTransaction)
-	//v1.GET("/transaction", transaction.GetTransaction)
+	v1.GET("/transaction", transaction.GetTransaction)
 	//router.GET("/transaction",Tr)
 
 	return router
