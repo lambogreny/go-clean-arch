@@ -1,6 +1,14 @@
 package api
 
+import (
+	"os"
+
+	"github.com/joho/godotenv"
+)
+
 func Init() {
+	godotenv.Load(".env")
+	serverPort := os.Getenv("SERVER_PORT")
 	r := NewRouter()
-	r.Run(":8080")
+	r.Run(serverPort)
 }

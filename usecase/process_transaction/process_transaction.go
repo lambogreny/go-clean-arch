@@ -1,8 +1,9 @@
 package process_transaction
 
 import (
-	"github.com/augusto/imersao5-esquenta-go/entity"
 	"log"
+
+	"github.com/augusto/imersao5-esquenta-go/entity"
 )
 
 type ProcessTransacion struct {
@@ -11,6 +12,15 @@ type ProcessTransacion struct {
 
 func NewProcessTransaction(repository entity.TransactionRepository) *ProcessTransacion {
 	return &ProcessTransacion{Repository: repository}
+}
+
+func (p *ProcessTransacion) GetAll() (entity.Transaction, error) {
+	log.Println("Getting transaction...")
+
+	// err := p.Repository.Select()
+
+	return entity.Transaction{}, nil
+
 }
 
 func (p *ProcessTransacion) Execute(input TransactionDtoInput) (TransactionDtoOutput, error) {
@@ -37,6 +47,7 @@ func (p *ProcessTransacion) Execute(input TransactionDtoInput) (TransactionDtoOu
 func (p *ProcessTransacion) approveTransaction(transaction *entity.Transaction, invalidTransaction error) (TransactionDtoOutput, error) {
 	err := p.Repository.Insert(transaction.ID, transaction.AccountID, transaction.Amount, "approved", "")
 	if err != nil {
+		//return TransactionDtoOutput{}, err
 		return TransactionDtoOutput{}, err
 	}
 	output := TransactionDtoOutput{

@@ -14,6 +14,7 @@ func NewRouter() *gin.Engine {
 	router.Use(midllewares.BasicAuth())           //Basic auth
 	router.Use(midllewares.RequestIdMiddleware()) //Id do request
 	router.Use(midllewares.CheckClientToken())    //Valida se há api key
+	//router.Use(midllewares.ErrorHandle()) // Nao esta sendo utilziado
 
 	v1 := router.Group("/v1")
 
@@ -22,6 +23,7 @@ func NewRouter() *gin.Engine {
 
 	v1.GET("/health", health.Status)
 	v1.POST("/transaction", transaction.NewTransaction)
+	//v1.GET("/transaction", transaction.GetTransaction)
 	//router.GET("/transaction",Tr)
 
 	return router
