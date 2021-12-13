@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
 	"reflect"
@@ -9,7 +10,6 @@ import (
 	"github.com/augusto/imersao5-esquenta-go/adapter/repository"
 	"github.com/augusto/imersao5-esquenta-go/usecase/process_transaction"
 	"github.com/augusto/imersao5-esquenta-go/utils"
-	"github.com/gin-gonic/gin"
 )
 
 type TransactionController struct {
@@ -45,6 +45,7 @@ func (t TransactionController) GetTransaction(c *gin.Context) {
 
 	outputLength := len(output)
 	if outputLength == 0 {
+		utils.LogFile("INFO", " transaction", "INFO ", "O banco está sem dados de transação", "")
 		c.JSON(http.StatusNoContent, nil)
 	}
 

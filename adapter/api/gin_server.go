@@ -7,6 +7,7 @@ import (
 )
 
 func Init() {
+
 	godotenv.Load(".env")
 	serverPort := os.Getenv("SERVER_PORT")
 	r := NewRouter()

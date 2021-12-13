@@ -18,9 +18,15 @@ func NewProcessTransaction(repository entity.TransactionRepository) *ProcessTran
 func (p *ProcessTransacion) GetAll() ([]entity.Transaction, error) {
 	log.Println("Getting transaction...")
 
-	err := p.Repository.Select()
-	fmt.Println(err)
-	return p.Repository.Select(), nil
+	//err := p.Repository.Select()
+	//fmt.Println(err)
+
+	resp, err := p.Repository.Select()
+
+	if err != nil {
+		fmt.Println("ERRO AQUI")
+	}
+	return resp, nil
 
 }
 

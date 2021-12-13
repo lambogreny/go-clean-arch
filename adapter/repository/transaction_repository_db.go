@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/augusto/imersao5-esquenta-go/entity"
+	"github.com/augusto/imersao5-esquenta-go/utils"
 	"github.com/satori/go.uuid"
 	"log"
 	"time"
@@ -17,12 +18,15 @@ func NewTransactionRepositoryDb(db *sql.DB) *TransactionRepositoryDb {
 	return &TransactionRepositoryDb{db: db}
 }
 
-func (t *TransactionRepositoryDb) Select() []entity.Transaction {
-	rows, err := t.db.Query("SELECT id,account_id,amount,status,error_message FROM transactions")
+func (t *TransactionRepositoryDb) Select() ([]entity.Transaction, error) {
+	queryString := "SELECT id,account_id,amount,status,error_message FROM transactions"
+	rows, err := t.db.Query(queryString)
 
 	if err != nil {
+		utils.LogFile("ERROR", " transaction", "CRITICAL ", "Problema de execução na query (select do GET ALL)", queryString)
 		log.Fatalf("could not execute query: %v", err)
-		return nil
+
+		return nil, err
 	}
 
 	//Lista com todas as transações
@@ -34,7 +38,7 @@ func (t *TransactionRepositoryDb) Select() []entity.Transaction {
 
 		if err := rows.Scan(&transaction.ID, &transaction.AccountID, &transaction.Amount, &transaction.Status, &transaction.ErrorMessage); err != nil {
 			log.Fatalf("could not scan row: %v", err)
-			return nil
+			return nil, err
 		}
 		fmt.Println("O id do banco é : ", transaction.ID)
 		transactions = append(transactions, transaction)
@@ -42,7 +46,7 @@ func (t *TransactionRepositoryDb) Select() []entity.Transaction {
 
 	}
 
-	return transactions
+	return transactions, nil
 
 }
 
