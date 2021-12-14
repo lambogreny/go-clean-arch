@@ -1,7 +1,6 @@
 package process_transaction
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/augusto/imersao5-esquenta-go/entity"
@@ -24,7 +23,7 @@ func (p *ProcessTransacion) GetAll() ([]entity.Transaction, error) {
 	resp, err := p.Repository.Select()
 
 	if err != nil {
-		fmt.Println("ERRO AQUI")
+		return nil, err
 	}
 	return resp, nil
 
@@ -36,9 +35,6 @@ func (p *ProcessTransacion) Execute(input TransactionDtoInput) (TransactionDtoOu
 	transaction.AccountID = input.AccountID
 	transaction.Amount = input.Amount
 	invalidTransaction := transaction.IsValid()
-
-	//Chamando a função de teste
-	//transaction.Teste()
 
 	log.Println("Validating transaction....")
 	if invalidTransaction != nil {

@@ -36,12 +36,16 @@ func (t TransactionController) GetTransaction(c *gin.Context) {
 	output, err := usecase.GetAll()
 
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		c.JSON(http.StatusInternalServerError, utils.Error{
+			StatusCode:  http.StatusInternalServerError,
+			Message:     err.Error(),
+			Description: "Erro de processamento",
+		})
 		return
 	}
 
 	//fmt.Println("o tipo da saída é : ", reflect.TypeOf(output))
-	//fmt.Println("O tamanho do array é :", len(output))
 
 	outputLength := len(output)
 	if outputLength == 0 {

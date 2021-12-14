@@ -2,7 +2,6 @@ package entity
 
 import (
 	"errors"
-	"fmt"
 )
 
 type Transaction struct {
@@ -31,8 +30,3 @@ func (t *Transaction) IsValid() error {
 }
 
 //Função teste
-func (t *Transaction) Teste() error {
-	fmt.Println("Teste")
-
-	return nil
-}

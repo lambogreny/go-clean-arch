@@ -1,1 +1,5 @@
-CRITICAL 2021/12/13 17:26:04 Problema de execução na query (select do GET ALL) Query : SELECT id,account_id,amount,status,error_message FROM transactions
+CRITICAL 2021/12/13 20:41:16 no such table: transactions Query : SELECT id,account_id,amount,status,error_message FROM transactions
+CRITICAL 2021/12/13 20:42:47 no such table: transactions Query : SELECT id,account_id,amount,status,error_message FROM transactions
+CRITICAL 2021/12/13 20:45:38 no such table: transactions Query : SELECT id,account_id,amount,status,error_message FROM transactions
+CRITICAL 2021/12/13 20:46:00 no such table: transactions Query : SELECT id,account_id,amount,status,error_message FROM transactions
+CRITICAL 2021/12/13 20:48:11 no such table: transactions Query : SELECT id,account_id,amount,status,error_message FROM transactions

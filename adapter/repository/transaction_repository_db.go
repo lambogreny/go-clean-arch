@@ -7,6 +7,7 @@ import (
 	"github.com/augusto/imersao5-esquenta-go/utils"
 	"github.com/satori/go.uuid"
 	"log"
+	"strings"
 	"time"
 )
 
@@ -20,13 +21,15 @@ func NewTransactionRepositoryDb(db *sql.DB) *TransactionRepositoryDb {
 
 func (t *TransactionRepositoryDb) Select() ([]entity.Transaction, error) {
 	queryString := "SELECT id,account_id,amount,status,error_message FROM transactions"
+	//rows, err := t.db.Query(queryString)
 	rows, err := t.db.Query(queryString)
 
 	if err != nil {
-		utils.LogFile("ERROR", " transaction", "CRITICAL ", "Problema de execução na query (select do GET ALL)", queryString)
-		log.Fatalf("could not execute query: %v", err)
+		utils.LogFile("ERROR", " transaction", "CRITICAL ", err.Error(), queryString)
+		log.Println("could not execute query: %v", err) //Mata a aplicação
 
 		return nil, err
+		//return []entity.Transaction{}, err
 	}
 
 	//Lista com todas as transações
@@ -37,7 +40,11 @@ func (t *TransactionRepositoryDb) Select() ([]entity.Transaction, error) {
 		transaction := entity.Transaction{}
 
 		if err := rows.Scan(&transaction.ID, &transaction.AccountID, &transaction.Amount, &transaction.Status, &transaction.ErrorMessage); err != nil {
-			log.Fatalf("could not scan row: %v", err)
+			if strings.Contains(err.Error(), "table") {
+				fmt.Println("Tabela não encontrada!")
+			}
+			//log.Fatalf("could not scan row: %v", err)
+
 			return nil, err
 		}
 		fmt.Println("O id do banco é : ", transaction.ID)

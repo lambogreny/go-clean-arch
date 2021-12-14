@@ -20,11 +20,13 @@ func NewRouter() *gin.Engine {
 
 	health := new(controllers.HeathController)
 	transaction := new(controllers.TransactionController)
+	approval := new(controllers.ApprovalController)
 
 	v1.GET("/health", health.Status)
 	v1.POST("/transaction", transaction.NewTransaction)
 	v1.GET("/transaction", transaction.GetTransaction)
-	//router.GET("/transaction",Tr)
+
+	v1.GET("/approval", approval.GetApproval)
 
 	return router
 }
