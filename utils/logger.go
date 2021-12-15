@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -8,6 +9,7 @@ import (
 
 func LogFile(logType string, filename string, prefix string, message string, query string) {
 	currentTime := time.Now()
+	fmt.Println(message)
 
 	logFile := "logs/" + logType + "/" + currentTime.Format("01-02-2006") + filename + ".log"
 
@@ -19,6 +21,6 @@ func LogFile(logType string, filename string, prefix string, message string, que
 	defer f.Close()
 
 	logger := log.New(f, prefix, log.LstdFlags)
-	query = "Query : " + query
+	query = "|| Query : " + query
 	logger.Println(message, query)
 }

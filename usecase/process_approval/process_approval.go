@@ -1,7 +1,6 @@
 package process_approval
 
 import (
-	"fmt"
 	"github.com/augusto/imersao5-esquenta-go/entity"
 	"log"
 )
@@ -17,10 +16,12 @@ func NewApprovalTransaction(repository entity.ApprovalRepository) *ProcessApprov
 func (p *ProcessApproval) GetAll() ([]entity.Approval, error) {
 	log.Println("Getting approvals...")
 
-	resp, err := p.Repository.Select()
+	var user string = "ELISA"
+
+	resp, err := p.Repository.Select(user)
 
 	if err != nil {
-		fmt.Println("ERRO AQUI")
+		return nil, err
 	}
 
 	return resp, nil

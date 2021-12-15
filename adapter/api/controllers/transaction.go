@@ -3,7 +3,6 @@ package controllers
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"log"
 	"net/http"
 	"reflect"
 
@@ -15,16 +14,39 @@ import (
 type TransactionController struct {
 }
 
+func (t TransactionController) DeleteTransaction(c *gin.Context) {
+	DB := utils.DatabaseConnection(c.Request.Header.Get("x-token")) //Função de database
+
+	repo := repository.NewTransactionRepositoryDb(DB)
+
+	usecase := process_transaction.NewProcessTransaction(repo)
+
+	err := usecase.DeleteTransaction()
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, utils.Error{
+			StatusCode:  http.StatusInternalServerError,
+			Message:     err.Error(),
+			Description: "Erro de processamento",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, process_transaction.DeleteTransactionOutput{Message: "Transação finalizada com sucesso!"})
+
+}
+
 func (t TransactionController) GetTransaction(c *gin.Context) {
 	DB := utils.DatabaseConnection(c.Request.Header.Get("x-token")) //Função de database
 
-	id, has := c.GetQuery("id")
+	//id, has := c.GetQuery("id")
+	id, _ := c.GetQuery("id")
 
-	if has {
-		fmt.Println("Tem id!", id)
-	} else {
-		fmt.Println("Não tem id, porque o o has é :", has)
-	}
+	//if has {
+	//	fmt.Println("Tem id!", id)
+	//} else {
+	//	fmt.Println("Não tem id, porque o o has é :", has)
+	//}
 
 	//Criando o repositório
 	repo := repository.NewTransactionRepositoryDb(DB)
@@ -33,10 +55,9 @@ func (t TransactionController) GetTransaction(c *gin.Context) {
 	usecase := process_transaction.NewProcessTransaction(repo)
 
 	//Executando
-	output, err := usecase.GetAll()
+	output, err := usecase.GetAll(id)
 
 	if err != nil {
-		log.Println(err)
 		c.JSON(http.StatusInternalServerError, utils.Error{
 			StatusCode:  http.StatusInternalServerError,
 			Message:     err.Error(),

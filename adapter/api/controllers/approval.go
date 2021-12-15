@@ -2,13 +2,14 @@ package controllers
 
 import (
 	"fmt"
+	"log"
+	"net/http"
+	"reflect"
+
 	"github.com/augusto/imersao5-esquenta-go/adapter/repository"
 	"github.com/augusto/imersao5-esquenta-go/usecase/process_approval"
 	"github.com/augusto/imersao5-esquenta-go/utils"
 	"github.com/gin-gonic/gin"
-	"log"
-	"net/http"
-	"reflect"
 )
 
 type ApprovalController struct {
@@ -41,7 +42,12 @@ func (t ApprovalController) GetApproval(c *gin.Context) {
 	output, err := usecase.GetAll()
 
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		c.JSON(http.StatusInternalServerError, utils.Error{
+			StatusCode:  http.StatusInternalServerError,
+			Message:     err.Error(),
+			Description: "Erro de processamento",
+		})
 		return
 	}
 

@@ -11,6 +11,10 @@ type TransactionDtoOutput struct {
 	ErrorMessage string `json:"error_message"`
 }
 
+type DeleteTransactionOutput struct {
+	Message string `json:"message"`
+}
+
 //type TransactionDtoSelect struct {
 //
 //}

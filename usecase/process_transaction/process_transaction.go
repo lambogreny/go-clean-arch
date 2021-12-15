@@ -14,13 +14,25 @@ func NewProcessTransaction(repository entity.TransactionRepository) *ProcessTran
 	return &ProcessTransacion{Repository: repository}
 }
 
-func (p *ProcessTransacion) GetAll() ([]entity.Transaction, error) {
+func (p *ProcessTransacion) DeleteTransaction() error {
+	log.Println("Starting delete transactions...")
+
+	var idFake string = "a7662337-d0b3-43f8-b815-ce45525f7eea"
+
+	err := p.Repository.DeleteTransaction(idFake)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+
+}
+
+func (p *ProcessTransacion) GetAll(id string) ([]entity.Transaction, error) {
 	log.Println("Getting transaction...")
 
-	//err := p.Repository.Select()
-	//fmt.Println(err)
-
-	resp, err := p.Repository.Select()
+	resp, err := p.Repository.Select(id)
 
 	if err != nil {
 		return nil, err

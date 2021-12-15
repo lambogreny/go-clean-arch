@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"github.com/augusto/imersao5-esquenta-go/entity"
@@ -19,9 +20,51 @@ func NewTransactionRepositoryDb(db *sql.DB) *TransactionRepositoryDb {
 	return &TransactionRepositoryDb{db: db}
 }
 
-func (t *TransactionRepositoryDb) Select() ([]entity.Transaction, error) {
-	queryString := "SELECT id,account_id,amount,status,error_message FROM transactions"
-	//rows, err := t.db.Query(queryString)
+func (t *TransactionRepositoryDb) DeleteTransaction(id string) error {
+	ctx := context.Background()
+	tx, err := t.db.BeginTx(ctx, nil)
+	if err != nil {
+		utils.LogFile("ERROR", " transaction", "CRITICAL ", err.Error(), "Erro ao iniciar a transação")
+		return err
+	}
+
+	_, err = tx.ExecContext(ctx, "DELETE FROM transactions")
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	_, err = tx.ExecContext(ctx, "insert into transactions values ('randomID',1,123,'approved','',current_timestamp,current_timestamp) ")
+	//_, err = tx.ExecContext(ctx, "insert into transactions values ('randomID',1,123,'approved','',current_timestamp,) ") //Fornçando o erro
+
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	//Comitando a transação
+	err = tx.Commit()
+
+	if err != nil {
+		utils.LogFile("ERROR", " transaction", "CRITICAL ", err.Error(), "Erro ao commitar a transação")
+		return err
+	}
+	log.Println("Transaction commited!")
+
+	return nil
+
+}
+
+func (t *TransactionRepositoryDb) Select(id string) ([]entity.Transaction, error) {
+
+	var filterParam string
+
+	if id != "" {
+		fmt.Println("Chegou no repositório um id : ", id)
+		filterParam = fmt.Sprintf("WHERE id = '%s' ", id)
+	}
+
+	queryString := fmt.Sprintf("SELECT id,account_id,amount,status,error_message FROM transactions %s", filterParam)
 	rows, err := t.db.Query(queryString)
 
 	if err != nil {

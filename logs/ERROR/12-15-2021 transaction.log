@@ -1,0 +1,1 @@
+CRITICAL 2021/12/15 08:48:42 no such column: randomID || Query : SELECT id,account_id,amount,status,error_message FROM transactions WHERE id = randomID
