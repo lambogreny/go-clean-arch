@@ -1,0 +1,2 @@
+CRITICAL 2021/12/16 09:25:17 pq: function fn_aprov_cotacao_full(unknown) does not exist || Query : SELECT  * from fn_aprov_cotacao_full ('ELISA') AS ( msg text,tipo text,responsavel text,validacao text,valor double precision, campo1 text, campo2 text, campo4 text, campo5 text )
+CRITICAL 2021/12/16 09:33:43 pq: function fn_aprov_cotacao_full(unknown) does not exist || Query : SELECT  * from fn_aprov_cotacao_full ('ELISA') AS ( msg text,tipo text,responsavel text,validacao text,valor double precision, campo1 text, campo2 text, campo4 text, campo5 text )

@@ -28,12 +28,14 @@ func (t *TransactionRepositoryDb) DeleteTransaction(id string) error {
 		return err
 	}
 
+	//Executando a primeira query
 	_, err = tx.ExecContext(ctx, "DELETE FROM transactions")
 	if err != nil {
 		tx.Rollback()
 		return err
 	}
 
+	//Executando a segunda query
 	_, err = tx.ExecContext(ctx, "insert into transactions values ('randomID',1,123,'approved','',current_timestamp,current_timestamp) ")
 	//_, err = tx.ExecContext(ctx, "insert into transactions values ('randomID',1,123,'approved','',current_timestamp,) ") //Fornçando o erro
 
@@ -69,10 +71,9 @@ func (t *TransactionRepositoryDb) Select(id string) ([]entity.Transaction, error
 
 	if err != nil {
 		utils.LogFile("ERROR", " transaction", "CRITICAL ", err.Error(), queryString)
-		log.Println("could not execute query: %v", err) //Mata a aplicação
+		log.Println("could not execute (select) query: %v", err)
 
 		return nil, err
-		//return []entity.Transaction{}, err
 	}
 
 	//Lista com todas as transações
@@ -86,13 +87,10 @@ func (t *TransactionRepositoryDb) Select(id string) ([]entity.Transaction, error
 			if strings.Contains(err.Error(), "table") {
 				fmt.Println("Tabela não encontrada!")
 			}
-			//log.Fatalf("could not scan row: %v", err)
 
 			return nil, err
 		}
-		fmt.Println("O id do banco é : ", transaction.ID)
 		transactions = append(transactions, transaction)
-		fmt.Println("Aqui a transação : ", transaction)
 
 	}
 

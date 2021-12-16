@@ -1,0 +1,30 @@
+{
+  "baroneza": {
+    "database": {
+      "target": "DEV",
+      "DEV": {
+        "Dialect": "postgresql",
+        "Id": "2212fw",
+        "Host": "177.126.104.48",
+        "Username": "postgres",
+        "Passoword": "dtcinfpostgresqlqta1",
+        "Port": 5434,
+        "Dbname": "baroneza"
+      },
+      "info": {
+        "Nome": "",
+        "Contato": "",
+        "DataDeCricacao": "2021-12-15"
+      }
+    }
+  },
+  "default": {
+    "database": {
+      "target": "DEV",
+      "DEV": {
+        "Dialect": "sqlite3",
+        "dataSourceName": "test.db",
+      }
+    }
+  }
+}

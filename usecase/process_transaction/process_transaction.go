@@ -17,6 +17,7 @@ func NewProcessTransaction(repository entity.TransactionRepository) *ProcessTran
 func (p *ProcessTransacion) DeleteTransaction() error {
 	log.Println("Starting delete transactions...")
 
+	//TODO fazer um select aqui para recuperar uma transação específica
 	var idFake string = "a7662337-d0b3-43f8-b815-ce45525f7eea"
 
 	err := p.Repository.DeleteTransaction(idFake)

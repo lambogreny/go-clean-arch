@@ -15,15 +15,24 @@ type TransactionController struct {
 }
 
 func (t TransactionController) DeleteTransaction(c *gin.Context) {
-	DB := utils.DatabaseConnection(c.Request.Header.Get("x-token")) //Função de database
+	DB, err := utils.DatabaseConnection(c.Request.Header.Get("x-token")) //Função de database
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, utils.Error{
+			StatusCode:  http.StatusBadRequest,
+			Message:     err.Error(),
+			Description: "Credenciais do cliente inválidas!",
+		})
+		return
+	}
 
 	repo := repository.NewTransactionRepositoryDb(DB)
 
 	usecase := process_transaction.NewProcessTransaction(repo)
 
-	err := usecase.DeleteTransaction()
+	resp := usecase.DeleteTransaction()
 
-	if err != nil {
+	if resp != nil {
 		c.JSON(http.StatusInternalServerError, utils.Error{
 			StatusCode:  http.StatusInternalServerError,
 			Message:     err.Error(),
@@ -37,16 +46,22 @@ func (t TransactionController) DeleteTransaction(c *gin.Context) {
 }
 
 func (t TransactionController) GetTransaction(c *gin.Context) {
-	DB := utils.DatabaseConnection(c.Request.Header.Get("x-token")) //Função de database
+	DB, err := utils.DatabaseConnection(c.Request.Header.Get("x-token")) //Função de database
+	fmt.Println("O ERRO é : ", err)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, utils.Error{
+			StatusCode:  http.StatusBadRequest,
+			Message:     err.Error(),
+			Description: "Credenciais do cliente inválidas!",
+		})
+		return
+	}
+
+	fmt.Println(DB)
 
 	//id, has := c.GetQuery("id")
 	id, _ := c.GetQuery("id")
-
-	//if has {
-	//	fmt.Println("Tem id!", id)
-	//} else {
-	//	fmt.Println("Não tem id, porque o o has é :", has)
-	//}
 
 	//Criando o repositório
 	repo := repository.NewTransactionRepositoryDb(DB)
@@ -80,7 +95,18 @@ func (t TransactionController) GetTransaction(c *gin.Context) {
 
 func (t TransactionController) NewTransaction(c *gin.Context) {
 
-	DB := utils.DatabaseConnection(c.Request.Header.Get("x-token")) //Função de database
+	DB, err := utils.DatabaseConnection(c.Request.Header.Get("x-token")) //Função de database
+
+	if err != nil {
+		if err != nil {
+			c.JSON(http.StatusBadRequest, utils.Error{
+				StatusCode:  http.StatusBadRequest,
+				Message:     err.Error(),
+				Description: "Credenciais do cliente inválidas!",
+			})
+			return
+		}
+	}
 
 	var inputData process_transaction.TransactionDtoInput
 

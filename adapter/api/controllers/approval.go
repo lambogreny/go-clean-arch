@@ -16,7 +16,18 @@ type ApprovalController struct {
 }
 
 func (t ApprovalController) GetApproval(c *gin.Context) {
-	DB := utils.DatabaseConnection(c.Request.Header.Get("x-token"))
+	DB, err := utils.DatabaseConnection(c.Request.Header.Get("x-token")) //Função de database
+
+	if err != nil {
+		if err != nil {
+			c.JSON(http.StatusBadRequest, utils.Error{
+				StatusCode:  http.StatusBadRequest,
+				Message:     err.Error(),
+				Description: "Credenciais do cliente inválidas!",
+			})
+			return
+		}
+	}
 
 	var inputData process_approval.ApprovalDtoInput
 	fmt.Println(c.BindQuery(inputData))
