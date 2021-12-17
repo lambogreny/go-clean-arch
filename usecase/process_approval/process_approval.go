@@ -16,7 +16,6 @@ func NewApprovalTransaction(repository entity.ApprovalRepository) *ProcessApprov
 }
 
 func (p *ProcessApproval) Interact(input ApprovalDtoInteractionInput) error {
-	fmt.Println("O caso de uso recebeu : ", input)
 
 	//Validando a permissão
 	hasPermission, err := p.Repository.CheckPermission(input.Usuario)
@@ -30,6 +29,10 @@ func (p *ProcessApproval) Interact(input ApprovalDtoInteractionInput) error {
 
 	//Chamando a transação de insert
 	insertTransaction := p.Repository.Interact(input.Filial, input.Cotacao, input.Fornecedor, input.TipoDeAprovacao, input.Usuario, input.StatusDeAprovacao, input.Justificativa, input.SeqConcatenada)
+
+	if insertTransaction != nil {
+		return insertTransaction
+	}
 
 	return nil
 }

@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"log"
@@ -45,37 +46,56 @@ func (t ApprovalRepositoryDb) RecoverAllProviders(filial string, cotacao string)
 
 }
 
-//#TODO fazer o transacion aqui
+//#TODO descriminar se a A , R, U
 func (t ApprovalRepositoryDb) Interact(filial string, cotacao string, fornecedor string, tipoDeAprovacao string, usuario string, statusDeAprovacao string, justificativa string, seqConcatenada string) error {
-	stmt, err := t.db.Prepare(`INSERT into
-										  tb_aprov_cotacao_full
-										values
-										  (
-											'1', 
-											'$2',
-											'$3',
-											'$4',
-											'$5',
-											'$6',
-											CURRENT_TIMESTAMP,
-											'$7',
-											'$8' 
-										  )`)
+	ctx := context.Background()
+	tx, _ := t.db.BeginTx(ctx, nil)
+
+	var treatBeforeInsertQuery string
+
+	switch statusDeAprovacao {
+	case "D":
+		treatBeforeInsertQuery = fmt.Sprintf("UPDATE tb_aprov_cotacao_full set status_aprov = 'W' where filial = '%s' AND cotacao = '%s' AND  fornecedor = '%s' ", filial, cotacao, fornecedor)
+	case "A", "R":
+		treatBeforeInsertQuery = fmt.Sprintf("DELETE FROM tb_aprov_cotacao_full where  filial = '%s' AND cotacao = '%s' AND  fornecedor = '%s' AND status_aprov IN ('D','W')", filial, cotacao, fornecedor)
+	}
+
+	//treatBeforeInsertQuery := fmt.Sprintf("DELETE FROM tb_aprov_cotacao_full where  filial = '%s' AND cotacao = '%s' AND  fornecedor = '%s' AND status_aprov IN ('D','W')", filial, cotacao, fornecedor)
+	_, err := tx.ExecContext(ctx, treatBeforeInsertQuery)
+	fmt.Println(treatBeforeInsertQuery)
+
 	if err != nil {
 		return err
 	}
-	_, err = stmt.Exec(
-		filial,
-		cotacao,
-		fornecedor,
-		tipoDeAprovacao,
-		usuario,
-		statusDeAprovacao,
-		justificativa,
-		seqConcatenada,
-	)
+
+	insertString := fmt.Sprintf(`INSERT into
+										  tb_aprov_cotacao_full
+										values
+										  (
+											'%s', 
+											'%s',
+											'%s',
+											'%s',
+											'%s',
+											'%s',
+											CURRENT_TIMESTAMP,
+											'%s',
+											'%s' 
+										  )`, filial, cotacao, fornecedor, tipoDeAprovacao, usuario, statusDeAprovacao, justificativa, seqConcatenada)
+
+	_, err = tx.ExecContext(ctx, insertString)
 
 	if err != nil {
+		fmt.Println("Cai no rollback!!")
+		tx.Rollback()
+		return err
+	}
+
+	//Commitando a transação
+	err = tx.Commit()
+
+	if err != nil {
+		fmt.Println("Erro ao commitar a transaction")
 		return err
 	}
 	return nil

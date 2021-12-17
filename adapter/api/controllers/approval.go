@@ -104,5 +104,5 @@ func (t ApprovalController) InteractApproval(c *gin.Context) {
 		})
 		return
 	}
-	c.String(http.StatusOK, "Criando!")
+	c.String(http.StatusOK, "Transação realizada com sucesso!")
 }
