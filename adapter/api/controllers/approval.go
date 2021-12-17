@@ -64,3 +64,45 @@ func (t ApprovalController) GetApproval(c *gin.Context) {
 
 	c.JSON(http.StatusOK, output)
 }
+
+func (t ApprovalController) InteractApproval(c *gin.Context) {
+	DB, err := utils.DatabaseConnection(c.Request.Header.Get("x-token"))
+	fmt.Println(DB)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, utils.Error{
+			StatusCode:  http.StatusBadRequest,
+			Message:     err.Error(),
+			Description: "Credenciais do cliente inválidas!",
+		})
+		return
+	}
+
+	var inputData process_approval.ApprovalDtoInteractionInput
+	//Validando a entrada
+	if err := c.ShouldBindJSON(&inputData); err != nil {
+		fmt.Println(reflect.TypeOf(err))
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  http.StatusBadRequest,
+			"message": "Data input validation",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	repo := repository.NewApprovalRepositoryDb(DB)
+
+	usecase := process_approval.NewApprovalTransaction(repo)
+
+	outputErr := usecase.Interact(inputData)
+
+	if outputErr != nil {
+		c.JSON(http.StatusConflict, utils.Error{
+			StatusCode:  http.StatusConflict,
+			Message:     outputErr.Error(),
+			Description: "Erro no processamento da transação!",
+		})
+		return
+	}
+	c.String(http.StatusOK, "Criando!")
+}

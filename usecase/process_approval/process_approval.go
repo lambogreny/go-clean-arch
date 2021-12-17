@@ -1,8 +1,10 @@
 package process_approval
 
 import (
-	"github.com/augusto/imersao5-esquenta-go/entity"
+	"fmt"
 	"log"
+
+	"github.com/augusto/imersao5-esquenta-go/entity"
 )
 
 type ProcessApproval struct {
@@ -13,10 +15,29 @@ func NewApprovalTransaction(repository entity.ApprovalRepository) *ProcessApprov
 	return &ProcessApproval{Repository: repository}
 }
 
+func (p *ProcessApproval) Interact(input ApprovalDtoInteractionInput) error {
+	fmt.Println("O caso de uso recebeu : ", input)
+
+	//Validando a permissão
+	hasPermission, err := p.Repository.CheckPermission(input.Usuario)
+
+	if err != nil {
+		return err
+	}
+	if hasPermission == false {
+		return fmt.Errorf("Usuário não autorizado!")
+	}
+
+	//Chamando a transação de insert
+	insertTransaction := p.Repository.Interact(input.Filial, input.Cotacao, input.Fornecedor, input.TipoDeAprovacao, input.Usuario, input.StatusDeAprovacao, input.Justificativa, input.SeqConcatenada)
+
+	return nil
+}
+
 func (p *ProcessApproval) GetAll() ([]entity.Approval, error) {
 	log.Println("Getting approvals...")
 
-	var user string = "ELISA"
+	var user string = "DONATTI"
 
 	resp, err := p.Repository.Select(user)
 

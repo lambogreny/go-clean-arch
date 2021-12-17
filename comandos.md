@@ -12,7 +12,9 @@ Gerando o mock do repositório
 `
 
 Rodando o comando no cmd (roda o server principal)
-`go run .\cmd\main.go`
+`go run .\main.go`
 
 Acessando o banco sqlite3(sempre colocar o ; no final do comando sql)
 `sqlite3 test.db`
+
+Criando um docker file

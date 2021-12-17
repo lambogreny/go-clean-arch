@@ -1,2 +1,64 @@
-CRITICAL 2021/12/16 09:25:17 pq: function fn_aprov_cotacao_full(unknown) does not exist || Query : SELECT  * from fn_aprov_cotacao_full ('ELISA') AS ( msg text,tipo text,responsavel text,validacao text,valor double precision, campo1 text, campo2 text, campo4 text, campo5 text )
-CRITICAL 2021/12/16 09:33:43 pq: function fn_aprov_cotacao_full(unknown) does not exist || Query : SELECT  * from fn_aprov_cotacao_full ('ELISA') AS ( msg text,tipo text,responsavel text,validacao text,valor double precision, campo1 text, campo2 text, campo4 text, campo5 text )
+CRITICAL 2021/12/16 16:46:19 pq: function fn_aprov_cotacao_full(unknown) does not exist || Query : SELECT  * from fn_aprov_cotacao_full ('ELISA') AS ( msg text,tipo text,responsavel text,validacao text,valor double precision, campo1 text, campo2 text, campo4 text, campo5 text )
+CRITICAL 2021/12/16 16:46:19 pq: function fn_aprov_cotacao_full(unknown) does not exist || Query : SELECT  * from fn_aprov_cotacao_full ('ELISA') AS ( msg text,tipo text,responsavel text,validacao text,valor double precision, campo1 text, campo2 text, campo4 text, campo5 text )
+CRITICAL 2021/12/16 16:58:25 pq: function fn_aprov_cotacao_full(unknown) does not exist || Query : SELECT  * from fn_aprov_cotacao_full ('ELISA') AS ( msg text,tipo text,responsavel text,validacao text,valor double precision, campo1 text, campo2 text, campo4 text, campo5 text )
+CRITICAL 2021/12/16 17:01:26 pq: syntax error at or near "string" || Query : 
+							select
+							x.msg,
+							x.tipo,
+							x.validacao,
+							avg(x.valor),
+							x.campo1,
+							x.campo5
+							from
+							(
+								SELECT
+								*
+								from
+								fn_aprov_cotacao_full('ELISA', '0', '001') AS (
+									msg text,
+									tipo text,
+									validacao text,
+									valor double precision,
+									campo1 text,
+									campo5 text
+								)
+							) x
+							group by
+							x.msg,
+							x.tipo,
+							x.validacao,
+							x.campo1,
+							x.campo5
+							order by
+							x.msg%!(EXTRA string=ELISA)
+CRITICAL 2021/12/16 17:02:33 pq: syntax error at or near "string" || Query : 
+							select
+							x.msg,
+							x.tipo,
+							x.validacao,
+							avg(x.valor),
+							x.campo1,
+							x.campo5
+							from
+							(
+								SELECT
+								*
+								from
+								fn_aprov_cotacao_full('ELISA', '0', '001') AS (
+									msg text,
+									tipo text,
+									validacao text,
+									valor double precision,
+									campo1 text,
+									campo5 text
+								)
+							) x
+							group by
+							x.msg,
+							x.tipo,
+							x.validacao,
+							x.campo1,
+							x.campo5
+							order by
+							x.msg%!(EXTRA string=ELISA)
+CRITICAL 2021/12/16 17:26:52 pq: function fn_aprov_cotacao_full(unknown) does not exist || Query : SELECT  * from fn_aprov_cotacao_full ('ELISA') AS ( msg text,tipo text,responsavel text,validacao text,valor double precision, campo1 text, campo2 text, campo4 text, campo5 text )
