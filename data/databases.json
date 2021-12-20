@@ -18,6 +18,25 @@
       }
     }
   },
+  "crm_homol_decorlit_erp": {
+    "database": {
+      "target": "DEV",
+      "DEV": {
+        "Dialect": "postgresql",
+        "Id": "123213123",
+        "Host": "dba.ti9.com.br",
+        "Username": "postgres",
+        "Passoword": "dtcinfpostgresql",
+        "Port": 63547,
+        "Dbname": "decorlit_20210621"
+      },
+      "info": {
+        "Nome": "",
+        "Contato": "",
+        "DataDeCricacao": "2021-12-15"
+      }
+    }
+  },
   "default": {
     "database": {
       "target": "DEV",

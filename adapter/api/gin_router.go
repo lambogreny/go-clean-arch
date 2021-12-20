@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/augusto/imersao5-esquenta-go/adapter/api/controllers"
+	controllersCrm "github.com/augusto/imersao5-esquenta-go/adapter/api/controllers/crm"
 	"github.com/augusto/imersao5-esquenta-go/midllewares"
 	"github.com/gin-gonic/gin"
 )
@@ -24,6 +25,8 @@ func NewRouter() *gin.Engine {
 	approval := new(controllers.ApprovalController)
 	queryInfo := new(controllers.QueryInfoController)
 
+	crmPrd := new(controllersCrm.PrdControllerErp)
+
 	v1.GET("/health", health.Status)
 	v1.POST("/transaction", transaction.NewTransaction)
 	v1.GET("/transaction", transaction.GetTransaction)
@@ -33,6 +36,9 @@ func NewRouter() *gin.Engine {
 	v1.POST("/approval", approval.InteractApproval)
 
 	v1.POST("/queryInfo/cards", queryInfo.GetCards)
+
+	//CRM
+	v1.GET("/crm/erp/prd", crmPrd.Get)
 
 	//v1.GET("/swagger", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	//url := ginSwagger.URL("http://localhost:8080/swagger/doc.json") // The url pointing to API definition
