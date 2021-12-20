@@ -17,31 +17,35 @@ type ApprovalController struct {
 
 func (t ApprovalController) GetApproval(c *gin.Context) {
 	DB, err := utils.DatabaseConnection(c.Request.Header.Get("x-token")) //Função de database
+	//var user string = c.Request.URL.Query("")
+	user, hasUser := c.GetQuery("user")
 
-	if err != nil {
-		if err != nil {
-			c.JSON(http.StatusBadRequest, utils.Error{
-				StatusCode:  http.StatusBadRequest,
-				Message:     err.Error(),
-				Description: "Credenciais do cliente inválidas!",
-			})
-			return
-		}
+	if !hasUser {
+		fmt.Println("Não foi passado usuário!")
 	}
 
-	var inputData process_approval.ApprovalDtoInput
-	fmt.Println(c.BindQuery(inputData))
-
-	//if err := c.BindQuery(&inputData); err != nil {
-	if err := c.ShouldBind(&inputData); err != nil {
-		fmt.Println(reflect.TypeOf(err))
-		c.JSON(http.StatusBadRequest, gin.H{
-			"status":  http.StatusBadRequest,
-			"message": "Data input validation",
-			"error":   err.Error(),
+	if err != nil {
+		c.JSON(http.StatusBadRequest, utils.Error{
+			StatusCode:  http.StatusBadRequest,
+			Message:     err.Error(),
+			Description: "Credenciais do cliente inválidas!",
 		})
 		return
 	}
+
+	//var inputData process_approval.ApprovalDtoInput
+	//fmt.Println(c.BindQuery(inputData))
+	//
+	////if err := c.BindQuery(&inputData); err != nil {
+	//if err := c.ShouldBind(&inputData); err != nil {
+	//	fmt.Println(reflect.TypeOf(err))
+	//	c.JSON(http.StatusBadRequest, gin.H{
+	//		"status":  http.StatusBadRequest,
+	//		"message": "Data input validation",
+	//		"error":   err.Error(),
+	//	})
+	//	return
+	//}
 
 	//Criando o repositório
 	repo := repository.NewApprovalRepositoryDb(DB)
@@ -50,7 +54,7 @@ func (t ApprovalController) GetApproval(c *gin.Context) {
 	usecase := process_approval.NewApprovalTransaction(repo)
 
 	//Executando
-	output, err := usecase.GetAll()
+	output, err := usecase.GetAll(user)
 
 	if err != nil {
 		log.Println(err)

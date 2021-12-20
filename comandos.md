@@ -17,4 +17,11 @@ Rodando o comando no cmd (roda o server principal)
 Acessando o banco sqlite3(sempre colocar o ; no final do comando sql)
 `sqlite3 test.db`
 
+
+##Docker
+
 Criando um docker file
+`docker build . -t go-dock`
+
+Executando o container
+`docker run -p 8080:8080 go-dock`

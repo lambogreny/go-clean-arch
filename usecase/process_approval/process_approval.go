@@ -37,10 +37,10 @@ func (p *ProcessApproval) Interact(input ApprovalDtoInteractionInput) error {
 	return nil
 }
 
-func (p *ProcessApproval) GetAll() ([]entity.Approval, error) {
+func (p *ProcessApproval) GetAll(user string) ([]entity.Approval, error) {
 	log.Println("Getting approvals...")
 
-	var user string = "DONATTI"
+	//var user string = "ELISA"
 
 	resp, err := p.Repository.Select(user)
 

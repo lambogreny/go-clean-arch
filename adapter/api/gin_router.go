@@ -22,6 +22,7 @@ func NewRouter() *gin.Engine {
 	health := new(controllers.HeathController)
 	transaction := new(controllers.TransactionController)
 	approval := new(controllers.ApprovalController)
+	queryInfo := new(controllers.QueryInfoController)
 
 	v1.GET("/health", health.Status)
 	v1.POST("/transaction", transaction.NewTransaction)
@@ -30,6 +31,8 @@ func NewRouter() *gin.Engine {
 
 	v1.GET("/approval", approval.GetApproval)
 	v1.POST("/approval", approval.InteractApproval)
+
+	v1.POST("/queryInfo/cards", queryInfo.GetCards)
 
 	//v1.GET("/swagger", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	//url := ginSwagger.URL("http://localhost:8080/swagger/doc.json") // The url pointing to API definition

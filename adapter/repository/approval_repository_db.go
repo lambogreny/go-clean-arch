@@ -46,7 +46,6 @@ func (t ApprovalRepositoryDb) RecoverAllProviders(filial string, cotacao string)
 
 }
 
-//#TODO descriminar se a A , R, U
 func (t ApprovalRepositoryDb) Interact(filial string, cotacao string, fornecedor string, tipoDeAprovacao string, usuario string, statusDeAprovacao string, justificativa string, seqConcatenada string) error {
 	ctx := context.Background()
 	tx, _ := t.db.BeginTx(ctx, nil)
@@ -60,7 +59,6 @@ func (t ApprovalRepositoryDb) Interact(filial string, cotacao string, fornecedor
 		treatBeforeInsertQuery = fmt.Sprintf("DELETE FROM tb_aprov_cotacao_full where  filial = '%s' AND cotacao = '%s' AND  fornecedor = '%s' AND status_aprov IN ('D','W')", filial, cotacao, fornecedor)
 	}
 
-	//treatBeforeInsertQuery := fmt.Sprintf("DELETE FROM tb_aprov_cotacao_full where  filial = '%s' AND cotacao = '%s' AND  fornecedor = '%s' AND status_aprov IN ('D','W')", filial, cotacao, fornecedor)
 	_, err := tx.ExecContext(ctx, treatBeforeInsertQuery)
 	fmt.Println(treatBeforeInsertQuery)
 
@@ -98,6 +96,7 @@ func (t ApprovalRepositoryDb) Interact(filial string, cotacao string, fornecedor
 		fmt.Println("Erro ao commitar a transaction")
 		return err
 	}
+
 	return nil
 }
 

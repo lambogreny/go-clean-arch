@@ -19,3 +19,7 @@ type ApprovalRepository interface {
 	RecoverAllProviders(filial string, cotacao string) //#TODO (transformar em endpoint)
 	Interact(filial string, cotacao string, fornecedor string, tipoDeAprovacao string, usuario string, statusDeAprovacao string, justificativa string, seqConcatenada string) error
 }
+
+//type QueryInfoRepository interface {
+//	GetCards()
+//}
