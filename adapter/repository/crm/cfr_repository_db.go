@@ -2,7 +2,6 @@ package crmRepository
 
 import (
 	"database/sql"
-	"fmt"
 	"github.com/augusto/imersao5-esquenta-go/entity/crm/cfr"
 )
 
@@ -15,6 +14,6 @@ func NewCfrRepositoryDbErp(db *sql.DB) *CfrRepositoryDbErp {
 }
 
 func (t CfrRepositoryDbErp) Select() ([]cfr.Cfr, error) {
-	queryString := fmt.Sprintf(``)
+	//queryString := fmt.Sprintf(``)
 	return []cfr.Cfr{}, nil
 }

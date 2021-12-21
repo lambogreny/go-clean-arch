@@ -6,7 +6,6 @@ import (
 	"github.com/augusto/imersao5-esquenta-go/usecase/crm/prd"
 	"github.com/augusto/imersao5-esquenta-go/utils"
 	"github.com/gin-gonic/gin"
-	"log"
 	"net/http"
 )
 
@@ -18,6 +17,7 @@ func (t PrdControllerErp) CallPrdService(c *gin.Context) {
 	resp := erp_crm.PrdService(c.Request.Header.Get("x-token"))
 
 	if resp != nil {
+		utils.LogFile("CRM/PRD", " SERVER_ERROR", "CRITICAL ", resp.Error(), "Erro na manipulação do banco")
 		c.JSON(http.StatusConflict, utils.Error{
 			StatusCode:  http.StatusConflict,
 			Message:     resp.Error(),
@@ -54,7 +54,7 @@ func (t PrdControllerErp) GetErp(c *gin.Context) {
 	//fmt.Println(teste)
 
 	if err != nil {
-		log.Println(err)
+		utils.LogFile("CRM/PRD", " SERVER_ERROR", "CRITICAL ", err.Error(), "Erro na manipulação do banco")
 		c.JSON(http.StatusInternalServerError, utils.Error{
 			StatusCode:  http.StatusInternalServerError,
 			Message:     err.Error(),

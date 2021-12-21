@@ -10,6 +10,10 @@ import (
 	"path/filepath"
 )
 
+/*
+	Função que carrega as strings de conexão
+	Devolve os objetos do De-Para
+*/
 func loadStringConnections(id string) (gjson.Result, error) {
 
 	absPath, _ := filepath.Abs("./") //Root do projeto
@@ -29,7 +33,10 @@ func loadStringConnections(id string) (gjson.Result, error) {
 	return client, nil
 }
 
-//Função que devolve as duas conexões
+/*
+	Função que devolve o banco do CRM e o Banco do ti9
+	Além do ownner da tabela do CRM
+*/
 func ServicesDatabases(clientId string) (*sql.DB, *sql.DB, string, error) {
 	connDict, err := loadStringConnections(clientId)
 
@@ -49,7 +56,7 @@ func ServicesDatabases(clientId string) (*sql.DB, *sql.DB, string, error) {
 	dbCrm := connDict.Get("db_CRM")
 	dbErp := connDict.Get("db_ERP")
 
-	//crmOwner := dbCrm.Get("Owner").Value()
+	crmOwner := dbCrm.Get("Owner").String()
 
 	dbCrmString := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", dbCrm.Get("Username"), dbCrm.Get("Passoword"), dbCrm.Get("Host"), dbCrm.Get("Port"), dbCrm.Get("Dbname"))
 	dbErpString := fmt.Sprintf("user=%s dbname=%s password=%s host=%s port=%s sslmode=disable", dbErp.Get("Username"), dbErp.Get("Dbname"), dbErp.Get("Passoword"), dbErp.Get("Host"), dbErp.Get("Port"))
@@ -63,6 +70,7 @@ func ServicesDatabases(clientId string) (*sql.DB, *sql.DB, string, error) {
 		return nil, nil, "", fmt.Errorf("Could not connect to integrations databases")
 	}
 
+	//Realizando o ping na conexão, para ver se os bancos estão acessíveis
 	errPingCrm := dbCrmConn.Ping()
 	errPingErp := dbErpConn.Ping()
 
@@ -71,5 +79,5 @@ func ServicesDatabases(clientId string) (*sql.DB, *sql.DB, string, error) {
 		return nil, nil, "", fmt.Errorf("Could not access integrations databases")
 	}
 
-	return dbCrmConn, dbErpConn, "crmOwner", nil
+	return dbCrmConn, dbErpConn, crmOwner, nil
 }

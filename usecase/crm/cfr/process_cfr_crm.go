@@ -20,5 +20,5 @@ func (p *ProcessCfr) UseCaseSelect() ([]cfr.Cfr, error) {
 	if err != nil {
 		return []cfr.Cfr{}, err
 	}
-	return []cfr.Cfr{}, nil
+	return resp, nil
 }

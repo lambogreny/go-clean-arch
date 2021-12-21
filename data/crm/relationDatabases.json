@@ -24,7 +24,7 @@
       },
       "info": {
         "Nome": "Integração do cliente de homoloagação",
-        "Contato": "",
+        "Contato": "lorencattoaugusto@gmail.com",
         "DataDeCricacao": "2021-12-21"
       }
     },
@@ -33,8 +33,14 @@
       "target": "DEV",
       "DEV": {
         "Dialect": "sqlite3",
-        "dataSourceName": "test.db",
+        "dataSourceName": "test.db"
       }
+    }
+  },
+  "logs": {
+    "database": {
+      "Dialect": "sqlite3",
+      "dataSourceName": "test.db"
     }
   }
 }

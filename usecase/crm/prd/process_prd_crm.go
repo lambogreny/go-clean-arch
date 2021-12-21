@@ -25,9 +25,9 @@ func (p *ProcessPrd) UseCaseSelect() ([]prd.Prd, error) {
 
 }
 
-func (p *ProcessPrd) UseCaseUpdate(prd prd.Prd) error {
+func (p *ProcessPrd) UseCaseUpdate(prd prd.Prd, owner string) error {
 
-	err := p.Repository.Update(prd)
+	err := p.Repository.Update(prd, owner)
 	if err != nil {
 		return err
 	}
@@ -42,6 +42,15 @@ func (p *ProcessPrd) UseCaseDelete(codigoProduto string, tipo string) error {
 		return err
 	}
 
+	return nil
+}
+
+func (p *ProcessPrd) UseCaseInsert(prd prd.Prd, owner string) error {
+	err := p.Repository.Insert(prd, owner)
+
+	if err != nil {
+		return err
+	}
 	return nil
 }
 

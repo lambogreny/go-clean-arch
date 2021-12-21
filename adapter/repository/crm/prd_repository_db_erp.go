@@ -42,12 +42,12 @@ func (t PrdRepositoryDbErp) CheckUpdateCrm(codigoProduto string) (bool, error) {
 
 }
 
-func (t PrdRepositoryDbErp) Update(prd prd.Prd) error {
+func (t PrdRepositoryDbErp) Update(prd prd.Prd, owner string) error {
 
-	//Tratando a struct #TODO
+	//Tratando a struct
 	//prd.Descricao_produto = "Augusto"
 
-	queryString := utils.Msg(`UPDATE epcrm_decorlit.product
+	queryString := utils.Msg(`UPDATE {{.owner}}.product
 										SET    NAME = '{{.NAME}}',
 											   description = '{{.description}}',
 											   codtipi = '{{.codtipi}}',
@@ -68,6 +68,7 @@ func (t PrdRepositoryDbErp) Update(prd prd.Prd) error {
 											   weight = '{{.weight}}',
 											   peso_bruto = '{{.peso_bruto}}'
 										WHERE  codigoproduto = '{{.codigoproduto}}'`, map[string]interface{}{
+		"owner":          owner,
 		"NAME":           prd.Descricao_produto,
 		"description":    prd.Descricao_produto,
 		"codtipi":        prd.Cod_tipi,
@@ -220,4 +221,107 @@ func (t PrdRepositoryDbErp) Select() ([]prd.Prd, error) {
 	}
 	return products, nil
 
+}
+
+func (t PrdRepositoryDbErp) Insert(prd prd.Prd, owner string) error {
+	fmt.Println("Camada de banco para realizar o insert!")
+
+	queryString := utils.Msg(`INSERT INTO {{.owner}}.product
+            (
+                        id,
+                        NAME,
+                        description,
+                        codtipi,
+                        category_id,
+                        category2,
+                        category3,
+                        category4,
+                        unidade,
+                        brand_id,
+                        created_at,
+                        created_by_id,
+                        cost_price,
+                        modified_at,
+                        modified_by_id,
+                        part_number,
+                        status,
+                        unit_price,
+                        weight,
+                        peso_bruto,
+                        codigoproduto,
+                        deleted
+            )
+            VALUES
+            (
+                        '{{.codigo_produto}}',
+                        '{{.descricao_produto}}',
+                        '{{.description}}',
+                        '{{.codtipi}}',
+                        '{{.category_id}}',
+                        '{{.category2}}',
+                        '{{.category3}}',
+                        '{{.category4}}',
+                        '{{.unidade}}',
+                        '{{.brand_id}}',
+                        '{{.created_at}}',
+                        '{{.created_by_id}}',
+                        '{{.cost_price}}',
+                        '{{.modified_at}}',
+                        '{{.modified_by_id}}',
+                        '{{.part_number}}',
+                        '{{.status}}',
+                        '{{.unit_price}}',
+                        '{{.weight}}',
+                        '{{.peso_bruto}}',
+                        '{{.codigoproduto}}',
+                        '{{.deleted}}'
+
+            )`, map[string]interface{}{
+		"owner":             owner,
+		"codigo_produto":    prd.Codigo_produto,
+		"descricao_produto": prd.Descricao_produto,
+		"codtipi":           prd.Cod_tipi,
+		"category_id":       "",
+		"category2":         "",
+		"category3":         "",
+		"category4":         "",
+		"unidade":           prd.Unidade,
+		"brand_id":          prd.Marca,
+		"created_at":        prd.Data_cad.Format("2006-01-02 15:04:05"),
+		"created_by_id":     prd.Usuario_inclusao,
+		"cost_price":        prd.Ultimo_preco_liq,
+		"modified_at":       prd.Data_hora_alteracao.Format("2006-01-02 15:04:05"),
+		"modified_by_id":    prd.Usuario_alteracao,
+		"part_number":       prd.Partnumber,
+		"status":            prd.Ativo,
+		"unit_price":        prd.Ultimo_preco_liq,
+		"weight":            prd.Peso_bruto,
+		"codigoproduto":     prd.Codigo_produto,
+		"deleted":           "0",
+	})
+
+	queryString = utils.CleanQueryString(queryString)
+	fmt.Println(queryString)
+
+	//Iniciando o contexto de transação
+	ctx := context.Background()
+	tx, _ := t.db.BeginTx(ctx, nil)
+
+	_, err := tx.ExecContext(ctx, queryString)
+
+	if err != nil {
+		utils.LogFile("CRM/PRD", " insert", "CRITICAL ", err.Error(), queryString)
+		tx.Rollback()
+		return err
+	}
+
+	commit := tx.Commit()
+
+	if commit != nil {
+		log.Println("Não consegui commitar!")
+		return err
+	}
+
+	fmt.Println(queryString)
+	return nil
 }
