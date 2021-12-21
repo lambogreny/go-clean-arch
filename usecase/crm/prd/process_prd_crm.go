@@ -13,12 +13,18 @@ func NewProcessPrd(repository crm.PrdRepository) *ProcessPrd {
 	return &ProcessPrd{Repository: repository}
 }
 
-func Select(p *ProcessPrd) ([]prd.Prd, error) {
+func (p *ProcessPrd) Select() ([]prd.Prd, error) {
 
 	resp, err := p.Repository.Select()
+
 	if err != nil {
 		return []prd.Prd{}, err
 	}
 
 	return resp, nil
+
+}
+
+func (p *ProcessPrd) CheckUpdateCrm(codigoProduto string) (bool, error) {
+	return true, nil
 }

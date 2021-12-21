@@ -1,0 +1,39 @@
+{
+  "homol": {
+      "Active": true,
+      "db_CRM": {
+          "target": "DEV",
+          "Dialect": "mysql",
+          "Id": "crm_homol_decorlit",
+          "Host": "177.170.20.101",
+          "Username": "root",
+          "Passoword": "CrMEpp@Ti9djc",
+          "Port": 63036,
+          "Dbname": "epcrm_decorlit"
+        },
+      "db_ERP": {
+        "target": "DEV",
+        "Dialect": "postgresql",
+        "Id": "erp_homol_decorlit",
+        "Host": "dba.ti9.com.br",
+        "Username": "postgres",
+        "Passoword": "dtcinfpostgresql",
+        "Port": 63547,
+        "Dbname": "decorlit_20210621"
+      },
+      "info": {
+        "Nome": "Integração do cliente de homoloagação",
+        "Contato": "",
+        "DataDeCricacao": "2021-12-21"
+      }
+    },
+  "default": {
+    "database": {
+      "target": "DEV",
+      "DEV": {
+        "Dialect": "sqlite3",
+        "dataSourceName": "test.db",
+      }
+    }
+  }
+}

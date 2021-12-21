@@ -1,8 +1,8 @@
 package controllersCrm
 
 import (
-	"fmt"
 	crmRepository "github.com/augusto/imersao5-esquenta-go/adapter/repository/crm"
+	"github.com/augusto/imersao5-esquenta-go/services/crm/erp_crm"
 	"github.com/augusto/imersao5-esquenta-go/usecase/crm/prd"
 	"github.com/augusto/imersao5-esquenta-go/utils"
 	"github.com/gin-gonic/gin"
@@ -13,7 +13,33 @@ import (
 type PrdControllerErp struct {
 }
 
-func (t PrdControllerErp) Get(c *gin.Context) {
+func (t PrdControllerErp) CallPrdService(c *gin.Context) {
+	//DB, err := utils.DatabaseConnection(c.Request.Header.Get("x-token"))
+	//
+	//if err != nil {
+	//	c.JSON(http.StatusBadRequest, utils.Error{
+	//		StatusCode:  http.StatusBadRequest,
+	//		Message:     err.Error(),
+	//		Description: "Credenciais do cliente inválidas!",
+	//	})
+	//	return
+	//}
+
+	resp := erp_crm.PrdService(c.Request.Header.Get("x-token"))
+
+	if resp != nil {
+		c.JSON(http.StatusConflict, utils.Error{
+			StatusCode:  http.StatusConflict,
+			Message:     resp.Error(),
+			Description: "Falha ao realizar o processamento de integração",
+		})
+		return
+	}
+
+	c.String(http.StatusOK, "OK")
+}
+
+func (t PrdControllerErp) GetErp(c *gin.Context) {
 	DB, err := utils.DatabaseConnection(c.Request.Header.Get("x-token"))
 
 	if err != nil {
@@ -33,7 +59,11 @@ func (t PrdControllerErp) Get(c *gin.Context) {
 	//Destinando o caso de uso
 	usecase := prd.NewProcessPrd(repo)
 
-	output, err := usecase.Repository.Select()
+	output, err := usecase.Select()
+
+	//Só testando o método de checagem de update
+	//teste, err := usecase.CheckUpdateCrm("adss")
+	//fmt.Println(teste)
 
 	if err != nil {
 		log.Println(err)
@@ -44,8 +74,6 @@ func (t PrdControllerErp) Get(c *gin.Context) {
 		})
 		return
 	}
-
-	fmt.Println("O resultado do caso de uso é", output)
 
 	c.JSON(http.StatusOK, output)
 }

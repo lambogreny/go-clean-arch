@@ -1,8 +1,9 @@
 ## Documentando um exemplo de construção de uma etapa do CRM
 
-### PRD
+### Exemplo PRD
 
-- **Criação da entidade da tabela PRD**
+- **Criação da entidade da tabela PRD**  
+  `entity.crm.prd.prd_ti9`
 - **Criação do prd_repository**  
   Implementa os métodos relacionados a prd
 - **Criação do crmRepository**  
@@ -16,3 +17,6 @@
   `api.controllers.crm.prd`
   Controller que chama os repositórios e casos de uso
   
+
+## Camada de serviço
+`services.crm.erp_crm` -> Sai do erp e vai para o crm

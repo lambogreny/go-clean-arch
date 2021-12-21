@@ -16,6 +16,11 @@ func NewPrdRepositoryDbErp(db *sql.DB) *PrdRepositoryDbErp {
 	return &PrdRepositoryDbErp{db: db}
 }
 
+func (t PrdRepositoryDbErp) CheckUpdateCrm(codigoProduto string) (bool, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (t PrdRepositoryDbErp) Select() ([]prd.Prd, error) {
 	queryString := fmt.Sprintf(`SELECT tipo,
 										   codigo_produto,
@@ -56,7 +61,25 @@ func (t PrdRepositoryDbErp) Select() ([]prd.Prd, error) {
 	for rows.Next() {
 		product := prd.Prd{}
 
-		if err := rows.Scan(&product.Tipo, &product.Codigo_produto, &product.Descricao_produto, &product.Cod_tipi, &product.Grupo_estoque, &product.Grupo_estoque_n2, &product.Grupo_estoque_n3, &product.Grupo_estoque_n4, &product.Unidade, &product.Marca, &product.Data_cad, &product.Usuario_inclusao, &product.Ultimo_preco_liq, &product.Data_hora_alteracao, &product.Usuario_alteracao, &product.Partnumber, &product.Ativo, &product.Peso_liquido, &product.Peso_bruto); err != nil {
+		if err := rows.Scan(&product.Tipo,
+			&product.Codigo_produto,
+			&product.Descricao_produto,
+			&product.Cod_tipi,
+			&product.Grupo_estoque,
+			&product.Grupo_estoque_n2,
+			&product.Grupo_estoque_n3,
+			&product.Grupo_estoque_n4,
+			&product.Unidade,
+			&product.Marca,
+			&product.Data_cad,
+			&product.Usuario_inclusao,
+			&product.Ultimo_preco_liq,
+			&product.Data_hora_alteracao,
+			&product.Usuario_alteracao,
+			&product.Partnumber,
+			&product.Ativo,
+			&product.Peso_liquido,
+			&product.Peso_bruto); err != nil {
 			log.Println(err.Error())
 			return []prd.Prd{}, err
 		}

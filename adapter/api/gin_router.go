@@ -38,7 +38,8 @@ func NewRouter() *gin.Engine {
 	v1.POST("/queryInfo/cards", queryInfo.GetCards)
 
 	//CRM
-	v1.GET("/crm/erp/prd", crmPrd.Get)
+	v1.GET("/crm/erp/prd", crmPrd.GetErp)
+	v1.GET("/crm/erp/prd/service", crmPrd.CallPrdService)
 
 	//v1.GET("/swagger", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	//url := ginSwagger.URL("http://localhost:8080/swagger/doc.json") // The url pointing to API definition
