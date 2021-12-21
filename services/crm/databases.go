@@ -6,11 +6,12 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/tidwall/gjson"
 	"io/ioutil"
+	"log"
 	"path/filepath"
 )
 
 func loadStringConnections(id string) (gjson.Result, error) {
-	fmt.Println("A função de connectionString recebeu o id", id)
+
 	absPath, _ := filepath.Abs("./") //Root do projeto
 	filePath := absPath + "/data/crm/relationDatabases.json"
 
@@ -29,37 +30,46 @@ func loadStringConnections(id string) (gjson.Result, error) {
 }
 
 //Função que devolve as duas conexões
-func ServicesDatabases(clientId string) (*sql.DB, *sql.DB, error) {
+func ServicesDatabases(clientId string) (*sql.DB, *sql.DB, string, error) {
 	connDict, err := loadStringConnections(clientId)
 
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, "", err
 	}
 
 	if connDict.Value() == nil {
-		return nil, nil, fmt.Errorf("Erro de cliente não encontrado!")
+		return nil, nil, "", fmt.Errorf("Erro de cliente não encontrado!")
+	}
+
+	//Checando se cliente está ativo
+	if connDict.Get("Active").Value() != true {
+		return nil, nil, "", fmt.Errorf("Client is not active!")
 	}
 
 	dbCrm := connDict.Get("db_CRM")
 	dbErp := connDict.Get("db_ERP")
+
+	//crmOwner := dbCrm.Get("Owner").Value()
 
 	dbCrmString := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", dbCrm.Get("Username"), dbCrm.Get("Passoword"), dbCrm.Get("Host"), dbCrm.Get("Port"), dbCrm.Get("Dbname"))
 	dbErpString := fmt.Sprintf("user=%s dbname=%s password=%s host=%s port=%s sslmode=disable", dbErp.Get("Username"), dbErp.Get("Dbname"), dbErp.Get("Passoword"), dbErp.Get("Host"), dbErp.Get("Port"))
 
 	dbCrmConn, errCrm := sql.Open("mysql", dbCrmString)
 
-	dbErpConn, errErp := sql.Open("postgresql", dbErpString)
+	dbErpConn, errErp := sql.Open("postgres", dbErpString)
 
 	if errCrm != nil || errErp != nil {
-		return nil, nil, errCrm
+		log.Println(errErp, errCrm)
+		return nil, nil, "", fmt.Errorf("Could not connect to integrations databases")
 	}
 
 	errPingCrm := dbCrmConn.Ping()
 	errPingErp := dbErpConn.Ping()
 
 	if errPingCrm != nil || errPingErp != nil {
-		return nil, nil, errPingCrm
+		log.Println("erro ao realizar ping nos databases")
+		return nil, nil, "", fmt.Errorf("Could not access integrations databases")
 	}
 
-	return dbCrmConn, dbErpConn, nil
+	return dbCrmConn, dbErpConn, "crmOwner", nil
 }

@@ -2,57 +2,63 @@ package erp_crm
 
 import (
 	"fmt"
+	crmRepository "github.com/augusto/imersao5-esquenta-go/adapter/repository/crm"
 	"github.com/augusto/imersao5-esquenta-go/services/crm"
+	"github.com/augusto/imersao5-esquenta-go/usecase/crm/prd"
 	"log"
 )
 
 func PrdService(clientId string) error {
-	fmt.Println("Inicio da transação dos procedimento de integração da PRD")
+	log.Println("Inicio da transação dos procedimento de integração da PRD")
 
 	//Chama a função que retorna as duas conexões
-	//databaseErp, databaseCrm, err := crm.ServicesDatabases("sad")
-	dbCrmConn, dbErpConn, err := crm.ServicesDatabases(clientId)
-	fmt.Println(dbCrmConn, dbErpConn)
+	dbCrmConn, dbErpConn, _, connError := crm.ServicesDatabases(clientId)
+
+	if connError != nil {
+		return connError
+	}
+
+	//Criando o repositório
+	repoErp := crmRepository.NewPrdRepositoryDbErp(dbErpConn)
+	repoCrm := crmRepository.NewPrdRepositoryDbErp(dbCrmConn)
+
+	usecaseErp := prd.NewProcessPrd(repoErp)
+	usecaseCrm := prd.NewProcessPrd(repoCrm)
+
+	data, err := usecaseErp.UseCaseSelect()
 
 	if err != nil {
-		log.Println("Falha ao se conectar com os bancos de dados!")
 		return err
 	}
 
-	//fmt.Println(databaseErp)
-	//fmt.Println(databaseCrm)
+	for _, x := range data {
 
-	//Criando o repositório
-	//repo := crmRepository.NewPrdRepositoryDbErp(dbErpConn)
-	//fmt.Println(repo)
+		//Checando o se deve realizar o update
+		checkUpdate, err := usecaseCrm.UseCaseCheckUpdateCrm(x.Codigo_produto)
 
-	//usecase := prd.NewProcessPrd(repo)
-	//
-	//data, err := usecase.Select()
-	//
-	//if err != nil {
-	//	return err
-	//}
-	//
-	//for _, x := range data {
-	//
-	//	//Checando o se deve realizar o update
-	//	checkUpdate, err := usecase.CheckUpdateCrm(x.Codigo_produto)
-	//
-	//	if err != nil {
-	//		return err
-	//	}
-	//
-	//	switch checkUpdate {
-	//	case true:
-	//		fmt.Println("Irei realizar a operação de update!")
-	//
-	//	case false:
-	//		fmt.Println("Irei realizar a operação de insert!")
-	//
-	//	}
-	//
-	//}
+		if err != nil {
+			return err
+		}
+
+		switch checkUpdate {
+		case true:
+			fmt.Println("Irei realizar a operação de update!")
+			err := usecaseCrm.UseCaseUpdate(x)
+			if err != nil {
+				return err
+			}
+
+			delete := usecaseErp.UseCaseDelete(x.Codigo_produto, x.Tipo)
+			if delete != nil {
+				return delete
+			}
+
+		case false:
+			//#TODO Implementar o insert (Preciso de dados para teste)
+			fmt.Println("Irei realizar a operação de insert!")
+		}
+
+	}
 
 	return nil
 }

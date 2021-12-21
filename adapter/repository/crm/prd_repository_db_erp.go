@@ -1,6 +1,7 @@
 package crmRepository
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"github.com/augusto/imersao5-esquenta-go/entity/crm/prd"
@@ -17,8 +18,140 @@ func NewPrdRepositoryDbErp(db *sql.DB) *PrdRepositoryDbErp {
 }
 
 func (t PrdRepositoryDbErp) CheckUpdateCrm(codigoProduto string) (bool, error) {
-	//TODO implement me
-	panic("implement me")
+	queryString := fmt.Sprintf(`SELECT count(*) from epcrm_decorlit.product where codigoproduto = '%s' `, codigoProduto)
+
+	rows, err := t.db.Query(queryString)
+
+	if err != nil {
+		return false, err
+	}
+
+	var count int
+
+	for rows.Next() {
+		if err := rows.Scan(&count); err != nil {
+			log.Println("Erro ao buscar o produto!")
+			return false, err
+		}
+	}
+
+	if count == 0 {
+		return false, nil
+	}
+	return true, nil
+
+}
+
+func (t PrdRepositoryDbErp) Update(prd prd.Prd) error {
+
+	//Tratando a struct #TODO
+	//prd.Descricao_produto = "Augusto"
+
+	queryString := utils.Msg(`UPDATE epcrm_decorlit.product
+										SET    NAME = '{{.NAME}}',
+											   description = '{{.description}}',
+											   codtipi = '{{.codtipi}}',
+											   category_id = '{{.category_id}}',
+											   category2 = '{{.category2}}',
+											   category3 = '{{.category3}}',
+											   category4 = '{{.category4}}',
+											   unidade = '{{.unidade}}',
+											   brand_id = '{{.brand_id}}',
+											   created_at = '{{.created_at}}',
+											   created_by_id = '{{.created_by_id}}',
+											   cost_price = '{{.cost_price}}',
+											   modified_at = '{{.modified_at}}',
+											   modified_by_id = '{{.modified_by_id}}',
+											   part_number = '{{.part_number}}',
+											   status = '{{.status}}',
+											   unit_price = '{{.unit_price}}',
+											   weight = '{{.weight}}',
+											   peso_bruto = '{{.peso_bruto}}'
+										WHERE  codigoproduto = '{{.codigoproduto}}'`, map[string]interface{}{
+		"NAME":           prd.Descricao_produto,
+		"description":    prd.Descricao_produto,
+		"codtipi":        prd.Cod_tipi,
+		"category_id":    "",
+		"category2":      "",
+		"category3":      "",
+		"category4":      "",
+		"unidade":        prd.Unidade,
+		"brand_id":       prd.Marca,
+		"created_at":     prd.Data_cad.Format("2006-01-02 15:04:05"),
+		"created_by_id":  prd.Usuario_inclusao,
+		"cost_price":     prd.Ultimo_preco_liq,
+		"modified_at":    prd.Data_hora_alteracao.Format("2006-01-02 15:04:05"),
+		"modified_by_id": prd.Usuario_alteracao,
+		"part_number":    prd.Partnumber,
+		"status":         prd.Ativo,
+		"unit_price":     prd.Ultimo_preco_liq,
+		"weight":         prd.Peso_liquido,
+		"peso_bruto":     prd.Peso_bruto,
+		"codigoproduto":  prd.Codigo_produto,
+	})
+
+	//Limpando a queryString
+	queryString = utils.CleanQueryString(queryString)
+
+	//Iniciando o contexto de transação
+	ctx := context.Background()
+	tx, _ := t.db.BeginTx(ctx, nil)
+
+	_, err := tx.ExecContext(ctx, queryString)
+
+	//Log de controle
+	//utils.LogFile("CRM/PRD", " update", "INFO ", "err.Error()", queryString)
+
+	if err != nil {
+		utils.LogFile("CRM/PRD", " update", "CRITICAL ", err.Error(), queryString)
+		tx.Rollback()
+		return err
+	}
+
+	commit := tx.Commit()
+
+	if commit != nil {
+		log.Println("Não consegui commitar!")
+		return err
+	}
+
+	//Retirando esse check pois não considera se não houve nenhuma mudança (r do ExecContext)
+	//rowsAffected, _ := r.RowsAffected()
+	//if rowsAffected <= 0 {
+	//	//utils.LogFile("CRM/PRD", "update", "CRITICAL ", err.Error(), queryString)
+	//	tx.Rollback()
+	//	return fmt.Errorf("Nenhuma linha afetada!!")
+	//}
+
+	return nil
+
+}
+
+func (t PrdRepositoryDbErp) Delete(codigoProduto string, tipo string) error {
+	queryString := utils.Msg(`DELETE from tb_crm_sincroniza WHERE tabela = 'PRD' AND pk = '{{.pk}}' and tipo = '{{.tipo}}'`, map[string]interface{}{
+		"pk":   codigoProduto,
+		"tipo": tipo,
+	})
+	//Iniciando o contexto de transação
+	ctx := context.Background()
+	tx, _ := t.db.BeginTx(ctx, nil)
+
+	_, err := tx.ExecContext(ctx, queryString)
+
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	fmt.Println(queryString)
+
+	commit := tx.Commit()
+
+	if commit != nil {
+		log.Println("Não consegui commitar!")
+		return err
+	}
+
+	return nil
 }
 
 func (t PrdRepositoryDbErp) Select() ([]prd.Prd, error) {

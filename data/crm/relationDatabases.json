@@ -9,7 +9,8 @@
           "Username": "root",
           "Passoword": "CrMEpp@Ti9djc",
           "Port": 63036,
-          "Dbname": "epcrm_decorlit"
+          "Dbname": "epcrm_decorlit",
+          "Owner": "epcrm_decorlit"
         },
       "db_ERP": {
         "target": "DEV",

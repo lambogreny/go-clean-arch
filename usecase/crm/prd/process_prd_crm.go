@@ -13,7 +13,7 @@ func NewProcessPrd(repository crm.PrdRepository) *ProcessPrd {
 	return &ProcessPrd{Repository: repository}
 }
 
-func (p *ProcessPrd) Select() ([]prd.Prd, error) {
+func (p *ProcessPrd) UseCaseSelect() ([]prd.Prd, error) {
 
 	resp, err := p.Repository.Select()
 
@@ -25,6 +25,32 @@ func (p *ProcessPrd) Select() ([]prd.Prd, error) {
 
 }
 
-func (p *ProcessPrd) CheckUpdateCrm(codigoProduto string) (bool, error) {
-	return true, nil
+func (p *ProcessPrd) UseCaseUpdate(prd prd.Prd) error {
+
+	err := p.Repository.Update(prd)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ProcessPrd) UseCaseDelete(codigoProduto string, tipo string) error {
+
+	err := p.Repository.Delete(codigoProduto, tipo)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (p *ProcessPrd) UseCaseCheckUpdateCrm(codigoProduto string) (bool, error) {
+	resp, err := p.Repository.CheckUpdateCrm(codigoProduto)
+
+	if err != nil {
+		return false, err
+	}
+
+	return resp, nil
 }

@@ -1,6 +1,9 @@
 package prd
 
-import "github.com/pkg/errors"
+import (
+	"github.com/pkg/errors"
+	"time"
+)
 
 type Prd struct {
 	Tipo                string
@@ -13,10 +16,10 @@ type Prd struct {
 	Grupo_estoque_n4    string
 	Unidade             string
 	Marca               string
-	Data_cad            string
+	Data_cad            time.Time
 	Usuario_inclusao    string
 	Ultimo_preco_liq    string
-	Data_hora_alteracao string
+	Data_hora_alteracao time.Time
 	Usuario_alteracao   string
 	Partnumber          string
 	Ativo               string

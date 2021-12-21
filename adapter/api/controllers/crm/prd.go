@@ -14,16 +14,6 @@ type PrdControllerErp struct {
 }
 
 func (t PrdControllerErp) CallPrdService(c *gin.Context) {
-	//DB, err := utils.DatabaseConnection(c.Request.Header.Get("x-token"))
-	//
-	//if err != nil {
-	//	c.JSON(http.StatusBadRequest, utils.Error{
-	//		StatusCode:  http.StatusBadRequest,
-	//		Message:     err.Error(),
-	//		Description: "Credenciais do cliente inválidas!",
-	//	})
-	//	return
-	//}
 
 	resp := erp_crm.PrdService(c.Request.Header.Get("x-token"))
 
@@ -51,15 +41,13 @@ func (t PrdControllerErp) GetErp(c *gin.Context) {
 		return
 	}
 
-	//utils.LogFile("CRM/PRD", " prd", "CRITICAL ", "err.Error()", "")
-
 	//Criando o repositório
 	repo := crmRepository.NewPrdRepositoryDbErp(DB)
 
 	//Destinando o caso de uso
 	usecase := prd.NewProcessPrd(repo)
 
-	output, err := usecase.Select()
+	output, err := usecase.UseCaseSelect()
 
 	//Só testando o método de checagem de update
 	//teste, err := usecase.CheckUpdateCrm("adss")

@@ -9,6 +9,6 @@ import "github.com/augusto/imersao5-esquenta-go/entity/crm/prd"
 type PrdRepository interface {
 	Select() ([]prd.Prd, error)
 	CheckUpdateCrm(codigoProduto string) (bool, error)
-	//Update()
-	//Insert()
+	Update(prd prd.Prd) error
+	Delete(codigoProduto string, tipo string) error
 }
