@@ -185,7 +185,7 @@ func (t PrdRepositoryDbErp) Select() ([]prd.Prd, error) {
 
 	if err != nil {
 		utils.LogFile("ERROR", " prd", "CRITICAL ", err.Error(), queryString)
-		log.Println("could not execute query: %v", err)
+		log.Println("could not execute query:", err)
 
 		return []prd.Prd{}, err
 	}

@@ -122,7 +122,7 @@ func (t ApprovalRepositoryDb) Select(user string) ([]entity.Approval, error) {
 
 	if err != nil {
 		utils.LogFile("ERROR", " approval", "CRITICAL ", err.Error(), queryString)
-		log.Println("could not execute query: %v", err)
+		log.Println("could not execute query:", err)
 
 		return nil, err
 	}

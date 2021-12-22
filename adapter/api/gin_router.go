@@ -16,8 +16,6 @@ func NewRouter() *gin.Engine {
 	router.Use(midllewares.CheckClientToken()) //Valida se há api key
 	router.Use(midllewares.ErrorHandle())      // Nao esta sendo utilziado
 
-	//docs2.SwaggerInfo.BasePath = "/v1"
-
 	v1 := router.Group("/v1")
 
 	health := new(controllers.HeathController)
@@ -27,6 +25,7 @@ func NewRouter() *gin.Engine {
 
 	crmPrd := new(controllersCrm.PrdControllerErp)
 	Cfr := new(controllersCrm.CfrControllerErp)
+	pedido := new(controllersCrm.PedidoControllerErp)
 
 	v1.GET("/health", health.Status)
 	v1.POST("/transaction", transaction.NewTransaction)
@@ -44,9 +43,7 @@ func NewRouter() *gin.Engine {
 	//Crm Services
 	v1.GET("/crm/erp/prd/service", crmPrd.CallPrdService)
 	v1.GET("/crm/erp/cfr/service", Cfr.CallCfrService)
+	v1.GET("/crm/erp/pedido/service", pedido.CallPedidoService)
 
-	//v1.GET("/swagger", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	//url := ginSwagger.URL("http://localhost:8080/swagger/doc.json") // The url pointing to API definition
-	//router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
 	return router
 }

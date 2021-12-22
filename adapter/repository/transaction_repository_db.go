@@ -71,7 +71,7 @@ func (t *TransactionRepositoryDb) Select(id string) ([]entity.Transaction, error
 
 	if err != nil {
 		utils.LogFile("ERROR", " transaction", "CRITICAL ", err.Error(), queryString)
-		log.Println("could not execute (select) query: %v", err)
+		log.Println("could not execute (select) query:", err)
 
 		return nil, err
 	}

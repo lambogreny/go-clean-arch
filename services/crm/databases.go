@@ -34,7 +34,7 @@ func loadStringConnections(id string) (gjson.Result, error) {
 }
 
 /*
-	Função que devolve o banco do CRM e o Banco do ti9
+	Função que devolve a conexão dos bancos: CRM , ti9, Owner do CRM
 	Além do ownner da tabela do CRM
 */
 func ServicesDatabases(clientId string) (*sql.DB, *sql.DB, string, error) {

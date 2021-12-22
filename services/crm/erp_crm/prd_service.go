@@ -40,7 +40,6 @@ func PrdService(clientId string) error {
 		switch x.Tipo {
 		case "I":
 			err := InsertWithCheck(usecaseCrm, usecaseErp, x, crmOwner)
-
 			if err != nil {
 				utils.LogDatabase("PRD", "I", x.Codigo_produto, true, err.Error())
 				return err
@@ -53,7 +52,7 @@ func PrdService(clientId string) error {
 				return err
 			}
 		}
-		utils.LogDatabase("PRD", "I", x.Codigo_produto, false, "")
+		utils.LogDatabase("PRD", x.Tipo, x.Codigo_produto, false, "")
 	}
 
 	return nil

@@ -17,8 +17,13 @@ Rodando o comando no cmd (roda o server principal)
 Acessando o banco sqlite3(sempre colocar o ; no final do comando sql)
 `sqlite3 test.db`
 
+##Testes
+Para rodar os testes: `go test -v`  || para rodar em todas as pastas : `go test ./...`  
+**obs** : Na classe de teste, começar o nome com 'Test'   
+*exemplo* : TestFirstExample
 
-##Docker
+##Docker 
+**obs**:Funcionando
 
 Criando um docker file
 `docker build . -t go-dock`

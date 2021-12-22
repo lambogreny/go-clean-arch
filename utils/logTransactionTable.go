@@ -29,7 +29,7 @@ func LogDatabase(tabela string, tipo string, pk string, errCase bool, message st
 	}
 	defer dbLog.Close()
 
-	queryString := fmt.Sprintf("INSERT INTO logs (tabela,tipo,pk,error,message) VALUES ('%s','%s','%s','%d','%s')", tabela, tipo, pk, errCase, message)
+	queryString := fmt.Sprintf("INSERT INTO logs (tabela,tipo,pk,error,message) VALUES ('%s','%s','%s','%v','%s')", tabela, tipo, pk, errCase, message)
 
 	r, queryError := dbLog.Exec(queryString)
 	if queryError != nil {

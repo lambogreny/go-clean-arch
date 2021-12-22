@@ -12,12 +12,15 @@ import (
 type PrdControllerErp struct {
 }
 
+/*
+	Chama o service de integração
+*/
 func (t PrdControllerErp) CallPrdService(c *gin.Context) {
 
 	resp := erp_crm.PrdService(c.Request.Header.Get("x-token"))
 
 	if resp != nil {
-		utils.LogFile("CRM/PRD", " SERVER_ERROR", "CRITICAL ", resp.Error(), "Erro na manipulação do banco")
+		utils.LogFile("CRM/PRD", " SERVER_ERROR", "CRITICAL ", resp.Error(), "Erro na manipulação do banco no service")
 		c.JSON(http.StatusConflict, utils.Error{
 			StatusCode:  http.StatusConflict,
 			Message:     resp.Error(),
@@ -29,6 +32,9 @@ func (t PrdControllerErp) CallPrdService(c *gin.Context) {
 	c.String(http.StatusOK, "OK")
 }
 
+/*
+	Devolve todos os produtos do ERP que devem ser integrados
+*/
 func (t PrdControllerErp) GetErp(c *gin.Context) {
 	DB, err := utils.DatabaseConnection(c.Request.Header.Get("x-token"))
 
