@@ -1,34 +1,34 @@
 FROM golang:alpine
 
-# Set necessary environmet variables needed for our image
+# Setando algumas variáveis de ambiente para a imagem
 ENV GO111MODULE=on \
     CGO_ENABLED=0 \
     GOOS=linux \
     GOARCH=amd64 \
     SERVER_PORT=:8080
 
-# Move to working directory /build
+#Movendo o diretório de trabalho para /build
 WORKDIR /build
 
-# Copy and download dependency using go mod
+# Copiando os arquivos e instalando as dependências do projeto
 COPY go.mod .
 COPY go.sum .
 RUN go mod download
 
-# Copy the code into the container
+# Copiando o código para o container
 COPY . .
 
-# Build the application
+# Realizando o build do app
 RUN go build -o main .
 
-# Move to /dist directory as the place for resulting binary folder
+# Movendo o arquivo binário para a pasta /dist
 WORKDIR /dist
 
-# Copy binary from build to main folder
+# Copiando o binário para a pasta /main
 RUN cp /build/main .
 
-# Export necessary port
+# Expondo a porta do server
 EXPOSE 8080
 
-# Command to run when starting the container
+# Executando o container
 CMD ["/dist/main"]

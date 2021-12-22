@@ -15,6 +15,9 @@ func respondWithError(c *gin.Context, code int, message interface{}) {
 	c.AbortWithStatusJSON(code, gin.H{"error": message})
 }
 
+/*
+	Função que é acionada pelo Middleware e verifica se na requisição existe um token do cliente
+*/
 func CheckClientToken() gin.HandlerFunc {
 
 	return func(c *gin.Context) {

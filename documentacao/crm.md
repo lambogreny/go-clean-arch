@@ -17,6 +17,13 @@
   `api.controllers.crm.prd`
   Controller que chama os repositórios e casos de uso
   
+## Fluxo de arquivos
+- pedido_crm -> Entidade :: **entity**
+- pedido_serivce -> Camada de serviço :: **services**
+- process_pedido -> Camada de caso de uso :: **usecase**
+- pedido_repository -> Interface :: **entity:repository**
+- pedido_repository_db -> Implementa a interface :: **adpter:repository**
+
 ##Logs
 Exemplo de chamada da função de log no database
 `utils.LogDatabase("PRD", "INFO", "123", false, "")`

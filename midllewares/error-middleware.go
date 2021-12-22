@@ -12,6 +12,7 @@ type appError struct {
 	Message string `json:"message"`
 }
 
+// Atualmente não está funcionando
 func ErrorHandle() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Next()

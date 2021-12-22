@@ -1,9 +1,11 @@
 package crm
 
+import "github.com/augusto/imersao5-esquenta-go/entity/crm/pedido"
+
 /**
  * Interface que implementa os métodos relacionados ao pedido
  */
 
 type PedidoRepository interface {
-	Select() error
+	SelectAccount(owner string) ([]pedido.Quote, error)
 }

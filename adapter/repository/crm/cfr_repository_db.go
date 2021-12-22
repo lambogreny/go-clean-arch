@@ -14,6 +14,6 @@ func NewCfrRepositoryDbErp(db *sql.DB) *CfrRepositoryDbErp {
 }
 
 func (t CfrRepositoryDbErp) Select() ([]cfr.Cfr, error) {
-	//queryString := fmt.Sprintf(``)
+
 	return []cfr.Cfr{}, nil
 }

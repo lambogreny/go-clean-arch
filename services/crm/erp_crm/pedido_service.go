@@ -12,7 +12,7 @@ func PedidoService(clientId string) error {
 	log.Println("Inicio da transação dos procedimento de integração dos pedidos")
 
 	//Chama a função que retorna as duas conexões
-	dbCrmConn, _, _, connError := crm.ServicesDatabases(clientId)
+	dbCrmConn, _, ownerCrm, connError := crm.ServicesDatabases(clientId)
 
 	if connError != nil {
 		return connError
@@ -23,8 +23,12 @@ func PedidoService(clientId string) error {
 
 	useCaseCrm := pedido.NewProcessPedido(repoCrm)
 
-	err := useCaseCrm.UseCaseSelect()
-	fmt.Println(err)
+	data, err := useCaseCrm.UseCaseSelect(ownerCrm)
+
+	if err != nil {
+		return err
+	}
+	fmt.Println(data)
 
 	return nil
 }
