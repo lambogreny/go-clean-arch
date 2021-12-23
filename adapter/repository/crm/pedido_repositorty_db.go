@@ -2,7 +2,6 @@ package crmRepository
 
 import (
 	"database/sql"
-	"fmt"
 	"github.com/augusto/imersao5-esquenta-go/entity/crm/pedido"
 	"github.com/augusto/imersao5-esquenta-go/utils"
 	"log"
@@ -16,7 +15,7 @@ func NewPedidoRepositoryDbErp(db *sql.DB) *PedidoRepositoryDbErp {
 	return &PedidoRepositoryDbErp{db: db}
 }
 
-func (t PedidoRepositoryDbErp) SelectAccount(owner string) ([]pedido.Quote, error) {
+func (t PedidoRepositoryDbErp) SelectQuote(owner string) ([]pedido.Quote, error) {
 	queryString := utils.Msg(`SELECT id,
 									   Upper(filial),
 									   Upper(account_id),
@@ -32,26 +31,17 @@ func (t PedidoRepositoryDbErp) SelectAccount(owner string) ([]pedido.Quote, erro
 									   Upper(condpagto),
 									   indpres,
 									   origemregistro,
-									   '9',
-									   'CRM',
 									   Upper(obssimples),
 									   Upper(obsfiscal),
 									   Upper(outrasinfcom),
 									   id                             AS obspalm,
 									   amount,
-									   descfinanc,
+									   Upper(descfinanc),
 									   codcobranca,
 									   pedcliente,
-									   Upper(descfinanc),
-									   '',
 									   Upper(LEFT(tipofrete, 1))      AS tipofrete,
 									   Upper(transp),
-									   0,
-									   '',
-									   '',
-									   '',
-									   Upper(codrepresentante),
-									   id
+									   Upper(codrepresentante)
 								FROM   {{.owner}}.quote
 									   INNER JOIN {{.owner}}.tb_crm_sincroniza
 											   ON id = pk
@@ -61,9 +51,8 @@ func (t PedidoRepositoryDbErp) SelectAccount(owner string) ([]pedido.Quote, erro
 									   AND integrado = 0 `, map[string]interface{}{
 		"owner": owner,
 	})
-	fmt.Println(queryString)
+	//fmt.Println(queryString)
 	rows, err := t.db.Query(queryString)
-	fmt.Println(rows)
 
 	if err != nil {
 		utils.LogFile("ERROR", " pedido", "CRITICAL ", err.Error(), queryString)
@@ -72,5 +61,118 @@ func (t PedidoRepositoryDbErp) SelectAccount(owner string) ([]pedido.Quote, erro
 		return []pedido.Quote{}, err
 	}
 
-	return []pedido.Quote{}, nil
+	pedidos := []pedido.Quote{}
+
+	for rows.Next() {
+		pedido := pedido.Quote{}
+
+		if err := rows.Scan(&pedido.Id,
+			&pedido.Filial,
+			&pedido.Account_id,
+			&pedido.Ti9Codigo,
+			&pedido.CodigoOperacao,
+			&pedido.Finalidade,
+			&pedido.Data_quoted,
+			&pedido.Moeda,
+			&pedido.DataEntrada,
+			&pedido.DataEntrega,
+			&pedido.CondPagamento,
+			&pedido.Indpres,
+			&pedido.OrigemRegistro,
+			&pedido.ObsSimples,
+			&pedido.ObsFiscal,
+			&pedido.OutrasInfoCom,
+			&pedido.ObsPalm,
+			&pedido.Amount,
+			&pedido.DescFinanc,
+			&pedido.CodCobranca,
+			&pedido.PedCliente,
+			&pedido.TipoFrete,
+			&pedido.Transp,
+			&pedido.CodRepresentante,
+		); err != nil {
+			log.Println(err.Error())
+			return nil, err
+		}
+		pedidos = append(pedidos, pedido)
+	}
+
+	return pedidos, nil
+}
+
+func (t PedidoRepositoryDbErp) SelectQuoteItem(owner string, id string) ([]pedido.QuoteItem, error) {
+	queryString := utils.Msg(`SELECT itempv,
+									   Upper(product_id),
+									   Upper(almoxarifado),
+									   dataentregaitem,
+									   Upper(quote_item.finalidade),
+									   qtdepedida,
+									   numeropc,
+									   itempc,
+									   codigocentro,
+									   quantity,
+									   unit_price,
+									   discount,
+									   Upper(quote_id),
+									   data_entrega_item,
+									   data_entrega,
+									   quote_item.amount,
+									   quote_item.order,
+									   quote_item.description                 AS descricao_informada,
+									   '1'                                    AS fator_conv2,
+									   'CRM'                                  AS usuario_inclusao,
+									   ( quote_item.amount * discount ) / 100 AS desc_valor
+								FROM   quote_item
+									   INNER JOIN {{.owner}}.quote
+											   ON ( {{.owner}}.quote_item.quote_id =
+															   {{.owner}}.quote.id )
+								WHERE  quote_id = '{{.id}}'
+									   AND quote_item.deleted = 0  `, map[string]interface{}{
+		"owner": owner,
+		"id":    id,
+	})
+	//fmt.Println(queryString)
+	rows, err := t.db.Query(queryString)
+
+	if err != nil {
+		log.Println("could not execute query:", err)
+		utils.LogFile("ERROR", " pedido", "CRITICAL ", err.Error(), queryString)
+
+		return []pedido.QuoteItem{}, err
+	}
+
+	items := []pedido.QuoteItem{}
+
+	for rows.Next() {
+		item := pedido.QuoteItem{}
+
+		if err := rows.Scan(&item.ItemPv,
+			&item.ProductId,
+			&item.Almoxarifado,
+			&item.DataEntregaItem,
+			&item.Finalidade,
+			&item.QtdePedida,
+			&item.NumeroPc,
+			&item.ItemPc,
+			&item.CodigoCentro,
+			&item.Quantity,
+			&item.UnitPrice,
+			&item.Discount,
+			&item.QuoteId,
+			&item.DataEntregaItem,
+			&item.DataEntrega,
+			&item.Amount,
+			&item.Order,
+			&item.DescricaoInformada,
+			&item.FatorConv2,
+			&item.UsuarioInclusao,
+			&item.DescValor,
+		); err != nil {
+			log.Println(err.Error())
+			return nil, err
+		}
+		items = append(items, item)
+	}
+
+	return items, nil
 }
