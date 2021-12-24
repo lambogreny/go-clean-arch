@@ -1,5 +1,0 @@
-CRITICAL 2021/12/22 19:08:51 sql: expected 25 destination arguments in Scan, not 26 || Query : Erro na manipulação do banco no service
-CRITICAL 2021/12/22 19:09:44 sql: expected 24 destination arguments in Scan, not 25 || Query : Erro na manipulação do banco no service
-CRITICAL 2021/12/22 19:10:08 sql: Scan error on column index 6, name "date_quoted": unsupported Scan, storing driver.Value type []uint8 into type *time.Time || Query : Erro na manipulação do banco no service
-CRITICAL 2021/12/22 19:20:43 sql: Scan error on column index 8, name "dataentrada": unsupported Scan, storing driver.Value type []uint8 into type *time.Time || Query : Erro na manipulação do banco no service
-CRITICAL 2021/12/22 19:21:01 sql: Scan error on column index 19, name "codcobranca": converting NULL to string is unsupported || Query : Erro na manipulação do banco no service

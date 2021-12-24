@@ -4,9 +4,16 @@ import (
 	crmRepository "github.com/augusto/imersao5-esquenta-go/adapter/repository/crm"
 	"github.com/augusto/imersao5-esquenta-go/services/crm"
 	"github.com/augusto/imersao5-esquenta-go/usecase/crm/pedido"
+	"github.com/augusto/imersao5-esquenta-go/utils"
+	"github.com/augusto/imersao5-esquenta-go/utils/helpers"
 	"log"
 )
 
+/*
+	Implementar ainda:
+	* #TODO Chamada na api do André
+	* #TODO Delete na sincroniza
+*/
 func PedidoService(clientId string) error {
 	log.Println("Inicio da transação dos procedimento de integração dos pedidos")
 
@@ -20,19 +27,32 @@ func PedidoService(clientId string) error {
 	//Criando o repositório
 	repoCrm := crmRepository.NewPedidoRepositoryDbErp(dbCrmConn)
 
+	//Criando o caso de uso
 	useCaseCrm := pedido.NewProcessPedido(repoCrm)
 
-	//data, err := useCaseCrm.UseCaseSelect(ownerCrm)
-	_, err := useCaseCrm.UseCaseSelect(ownerCrm)
+	// ----------------------------------------------------------- Selecionando e criando os payloads ------------------------------------------------------------//
+
+	payloads, err := useCaseCrm.UseCaseSelect(ownerCrm, helpers.ExtraInfo{})
 
 	if err != nil {
+		utils.LogDatabase(clientId, "PEDIDO", "I", "SELECT PEDIDO", true, err.Error())
 		return err
 	}
 
-	//fmt.Println("Esse são o dados selecionados:")
-	//fmt.Println(data)
+	// -----------------------------------------------------------Com todos os payloads já montados, chamar a api ------------------------------------------------------------//
 
-	//Criar caso de uso para fazer a execução dos requests
+	//Recuperando a url base do cliente para a api de entrada de pedidos
+	basePedidoUrl, basePedidoErr := crm.GetPedidoUrl(clientId)
+
+	if basePedidoErr != nil {
+		return basePedidoErr
+	}
+
+	callApiErr := useCaseCrm.UseCaseCallApi(payloads, helpers.ExtraInfo{Base_url: basePedidoUrl, Owner: ownerCrm})
+
+	if callApiErr != nil {
+		return callApiErr
+	}
 
 	return nil
 }

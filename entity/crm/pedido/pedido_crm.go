@@ -66,7 +66,7 @@ type ItemsPayload struct {
 	CodigoCentro      string `json:"codigo_centro"`
 	UnitPrice         string `json:"preco_unit"`
 	Discount          string `json:"desc_perc"`
-	DescValor         string `json:"desc_valor"`
+	DescValor         int64  `json:"desc_valor"`
 	Data_Entrega_Item int64  `json:"data_entrega_item"`
 }
 

@@ -14,13 +14,16 @@
         },
       "db_ERP": {
         "target": "DEV",
-        "Dialect": "postgresql",
+        "Dialect": "postgres",
         "Id": "erp_homol_decorlit",
         "Host": "dba.ti9.com.br",
         "Username": "postgres",
         "Passoword": "dtcinfpostgresql",
         "Port": 63547,
         "Dbname": "decorlit_20210621"
+      },
+      "pedidosInfo": {
+        "base_url": "http://remoto.ti9.com.br:9090/ti9-api/app/afv/rest/api/v1/pedidos/"
       },
       "info": {
         "Nome": "Integração do cliente de homoloagação",
@@ -35,6 +38,19 @@
         "Dialect": "sqlite3",
         "dataSourceName": "test.db"
       }
+    }
+  },
+  "pgLogs": {
+    "database": {
+      "target": "DEV",
+      "Dialect": "postgres",
+      "Id": "db_logs_postgres",
+      "Host": "dba.ti9.com.br",
+      "Username": "postgres",
+      "Passoword": "dtcinfpostgresql",
+      "Port": 63547,
+      "Dbname": "decorlit_20210621",
+      "Table":"tb_logs"
     }
   },
   "logs": {

@@ -41,18 +41,18 @@ func PrdService(clientId string) error {
 		case "I":
 			err := InsertWithCheck(usecaseCrm, usecaseErp, x, crmOwner)
 			if err != nil {
-				utils.LogDatabase("PRD", "I", x.Codigo_produto, true, err.Error())
+				utils.LogDatabase(clientId, "PRD", "I", x.Codigo_produto, true, err.Error())
 				return err
 			}
 
 		case "U":
 			err := Update(usecaseCrm, usecaseErp, x, crmOwner)
 			if err != nil {
-				utils.LogDatabase("PRD", "I", x.Codigo_produto, true, err.Error())
+				utils.LogDatabase(clientId, "PRD", "I", x.Codigo_produto, true, err.Error())
 				return err
 			}
 		}
-		utils.LogDatabase("PRD", x.Tipo, x.Codigo_produto, false, "")
+		utils.LogDatabase(clientId, "PRD", x.Tipo, x.Codigo_produto, false, "")
 	}
 
 	return nil

@@ -3,13 +3,14 @@ package utils
 import (
 	"database/sql"
 	"fmt"
+	_ "github.com/lib/pq"
 	"github.com/tidwall/gjson"
 	"io/ioutil"
 	"log"
 	"path/filepath"
 )
 
-func LogDatabase(tabela string, tipo string, pk string, errCase bool, message string) {
+func LogDatabase(clientId string, tabela string, tipo string, pk string, errCase bool, message string) {
 	absPath, _ := filepath.Abs("./") //Root do projeto
 	filePath := absPath + "/data/crm/relationDatabases.json"
 
@@ -21,21 +22,28 @@ func LogDatabase(tabela string, tipo string, pk string, errCase bool, message st
 
 	myJson := string(file)
 
-	client := gjson.Get(myJson, "logs")
+	//client := gjson.Get(myJson, "logs") //sqlite
+	client := gjson.Get(myJson, "pgLogs")
 
-	dbLog, dbConnError := sql.Open(client.Get("database.Dialect").String(), client.Get("database.dataSourceName").String())
+	//Banco sqlite
+	//dbLog, dbConnError := sql.Open(client.Get("database.Dialect").String(), client.Get("database.dataSourceName").String())
+
+	var connString string = fmt.Sprintf("user=%s dbname=%s password=%s host=%s port=%s sslmode=disable", client.Get("database.Username"), client.Get("database.Dbname"), client.Get("database.Passoword"), client.Get("database.Host"), client.Get("database.Port"))
+	//dbLog, dbConnError := sql.Open(client.Get("database.Dialect").String(), connString)
+	dbLog, dbConnError := sql.Open("postgres", connString)
+
 	if dbConnError != nil {
-		panic("Could not connnect to log database")
+		panic("Could not connect to log database")
 	}
 	defer dbLog.Close()
 
-	queryString := fmt.Sprintf("INSERT INTO logs (tabela,tipo,pk,error,message) VALUES ('%s','%s','%s','%v','%s')", tabela, tipo, pk, errCase, message)
+	queryString := fmt.Sprintf("INSERT INTO tb_logs (cliente,tabela,tipo,pk,error,message) VALUES ('%s','%s','%s','%s','%v','%s')", clientId, tabela, tipo, pk, errCase, message)
 
 	r, queryError := dbLog.Exec(queryString)
 	if queryError != nil {
 		log.Println(queryError)
 		panic("Could not execute log query")
 	}
-	fmt.Println(r)
+	fmt.Println(r.RowsAffected())
 
 }

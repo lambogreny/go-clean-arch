@@ -2,6 +2,7 @@ package crmRepository
 
 import (
 	"database/sql"
+	"fmt"
 	"github.com/augusto/imersao5-esquenta-go/entity/crm/pedido"
 	"github.com/augusto/imersao5-esquenta-go/utils"
 	"log"
@@ -175,4 +176,11 @@ func (t PedidoRepositoryDbErp) SelectQuoteItem(owner string, id string) ([]pedid
 	}
 
 	return items, nil
+}
+
+func (t PedidoRepositoryDbErp) DeleteSincroniza(owner string, id string) error {
+	fmt.Println("Recebi o comando de delete no owner", owner, "e com o id", id)
+
+	//Iniciar uma transação...
+	return nil
 }

@@ -33,6 +33,25 @@ func loadStringConnections(id string) (gjson.Result, error) {
 	return client, nil
 }
 
+func GetPedidoUrl(id string) (string, error) {
+
+	absPath, _ := filepath.Abs("./") //Root do projeto
+	filePath := absPath + "/data/crm/relationDatabases.json"
+
+	file, err := ioutil.ReadFile(filePath)
+
+	if err != nil {
+		return "", err
+	}
+
+	myJson := string(file)
+
+	client := gjson.Get(myJson, id)
+
+	return client.Get("pedidosInfo.base_url").String(), nil
+
+}
+
 /*
 	Função que devolve a conexão dos bancos: CRM , ti9, Owner do CRM
 	Além do ownner da tabela do CRM
