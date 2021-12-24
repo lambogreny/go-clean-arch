@@ -29,7 +29,7 @@ func PrdService(clientId string) error {
 	data, err := usecaseErp.UseCaseSelect()
 
 	//Logando testes
-	//utils.LogDatabase("PRD", "INFO", "123", false, "")
+	//utils.LogDatabase(clientId, "PRD", "I", "123", false, "")
 
 	if err != nil {
 		return err
@@ -39,14 +39,14 @@ func PrdService(clientId string) error {
 
 		switch x.Tipo {
 		case "I":
-			err := InsertWithCheck(usecaseCrm, usecaseErp, x, crmOwner)
+			err := PrdInsertWithCheck(usecaseCrm, usecaseErp, x, crmOwner)
 			if err != nil {
 				utils.LogDatabase(clientId, "PRD", "I", x.Codigo_produto, true, err.Error())
 				return err
 			}
 
 		case "U":
-			err := Update(usecaseCrm, usecaseErp, x, crmOwner)
+			err := PrdUpdate(usecaseCrm, usecaseErp, x, crmOwner)
 			if err != nil {
 				utils.LogDatabase(clientId, "PRD", "I", x.Codigo_produto, true, err.Error())
 				return err
@@ -58,7 +58,7 @@ func PrdService(clientId string) error {
 	return nil
 }
 
-func InsertWithCheck(usecaseCrm *prd.ProcessPrd, usecaseErp *prd.ProcessPrd, x prd2.Prd, crmOwner string) error {
+func PrdInsertWithCheck(usecaseCrm *prd.ProcessPrd, usecaseErp *prd.ProcessPrd, x prd2.Prd, crmOwner string) error {
 
 	//Checando o se deve realizar o update
 	checkUpdate, err := usecaseCrm.UseCaseCheckUpdateCrm(x.Codigo_produto)
@@ -95,7 +95,7 @@ func InsertWithCheck(usecaseCrm *prd.ProcessPrd, usecaseErp *prd.ProcessPrd, x p
 	return nil
 }
 
-func Update(usecaseCrm *prd.ProcessPrd, usecaseErp *prd.ProcessPrd, x prd2.Prd, crmOwner string) error {
+func PrdUpdate(usecaseCrm *prd.ProcessPrd, usecaseErp *prd.ProcessPrd, x prd2.Prd, crmOwner string) error {
 
 	err := usecaseCrm.UseCaseUpdate(x, crmOwner)
 	if err != nil {

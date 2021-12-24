@@ -12,7 +12,6 @@ import (
 /*
 	Implementar ainda:
 	* #TODO Chamada na api do André
-	* #TODO Delete na sincroniza
 */
 func PedidoService(clientId string) error {
 	log.Println("Inicio da transação dos procedimento de integração dos pedidos")

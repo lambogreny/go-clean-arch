@@ -1,0 +1,135 @@
+package cfr
+
+import (
+	"database/sql"
+	"time"
+)
+
+type Account struct {
+	Tipo                    sql.NullString
+	Id                      sql.NullString
+	Name                    sql.NullString
+	Description             sql.NullString
+	NomeFantasia            sql.NullString
+	NaturezaPessoa          sql.NullString
+	SicCode                 sql.NullString
+	InscricaoEstadual       sql.NullString
+	SitFed                  sql.NullString
+	SitCms                  sql.NullString
+	SitIpi                  sql.NullString
+	BillingAddressCity      sql.NullString
+	NumeroEnd               sql.NullString
+	EndComplemento          sql.NullString
+	Bairro                  sql.NullString
+	BillingAdressState      sql.NullString
+	BillingAdressPostalCode sql.NullString
+	BillingAdressCountry    sql.NullString
+	Telefone1               sql.NullString
+	Telefone2               sql.NullString
+	Contato                 sql.NullString
+	Email                   sql.NullString
+	DataNascimento          sql.NullString
+	EmailNfe                sql.NullString
+	WebSite                 sql.NullString
+	NossoCliente            sql.NullString
+	NossoFornecedor         sql.NullString
+	NossoTransportador      sql.NullString
+	Industry                sql.NullString
+	CondPgPadraoClie        sql.NullString
+	DocPadraoCliente        sql.NullString
+	CobrPadraoCliente       sql.NullString
+	PortPadraoCliente       sql.NullString
+	CreatedAt               sql.NullString
+	ZonaFranca              sql.NullString
+	InscricaoSuframa        sql.NullString
+	Vendedor1               sql.NullString
+	Comissao1Fat            sql.NullString
+	TranspPadraoCliente     sql.NullString
+	TipoFrete               sql.NullString
+	Endereco                sql.NullString
+	EnderecoCobranca        sql.NullString
+	NumeroEndCobranca       sql.NullString
+	BairroCobranca          sql.NullString
+	CidadeCobranca          sql.NullString //subquery
+	UfCobranca              sql.NullString //subquery
+	Cep                     sql.NullString
+	CepCobranca             sql.NullString
+	CreatedById             sql.NullString
+	ModifiedAt              sql.NullString
+	ModifiedById            sql.NullString
+	EndeLatitude            sql.NullString
+	EndeLongitude           sql.NullString
+	Ti9Codigo               sql.NullString
+	CategoriaCliente        sql.NullString
+	OptSimples              sql.NullString
+	ContribIcms             sql.NullString
+	ConsumidorFinal         sql.NullString
+	CkVerVenctoLote         sql.NullString
+	QtdeMinVenctoLote       sql.NullString
+	InssRet                 sql.NullString
+	IsentoIcms              sql.NullString
+	RetPiscoFcsvll          sql.NullString
+	RetIss                  sql.NullString
+	RetIssFonte             sql.NullString
+	SubstTributIcms         sql.NullString
+	SubstTributPis          sql.NullString
+	SubstTributConfis       sql.NullString
+	Status                  sql.NullString
+	Origem                  sql.NullString
+	ContaContabil           sql.NullString
+	ContaSintetica          sql.NullString
+}
+
+type Cfr struct {
+	Codigo_pessoa       string
+	Tipo                string
+	Nome_pessoa         string
+	Nome_fantasia       string
+	Natureza_pessoa     string
+	Cnpj_cpf            string
+	Inscricao_estadual  string
+	Sitfed              string
+	Siticms             string
+	Sitipi              string
+	Endereco            string
+	Numeroend           string
+	End_complemento     string
+	Bairro              string
+	Cidade              string
+	Uf                  string
+	Cep                 string
+	Pais                string
+	Telefone_1          string
+	Telefone_2          string
+	Contato             string
+	Email               string
+	Emailnfe            string
+	Home_page           string
+	Nosso_cliente       string
+	Categoria_cliente   string
+	Cond_pg_padrao_clie string
+	Docpadrao_cliente   string
+	Cobrpadrao_cliente  string
+	Portpadrao_cliente  string
+	Status              string
+	Data_cad            string
+	Zonafranca          string
+	Inscricao_suframa   string
+	Vendedor1           string
+	Comissao1_fat       string
+	Transp_padr_clie    string
+	Tipo_frete          string
+	Endereco_cobranca   string
+	Numeroend_cobranca  string
+	Bairro_cobranca     string
+	Cidade_cobranca     string
+	Uf_cobranca         string
+	Cep_cobranca        string
+	Data_hora_inclusao  time.Time
+	Usuario_inclusao    string
+	Data_hora_alteracao time.Time
+	Usuario_alteracao   string
+	Ende_latitude       string
+	Ende_longitude      string
+	Origem              string
+}

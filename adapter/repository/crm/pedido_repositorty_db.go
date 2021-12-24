@@ -1,6 +1,7 @@
 package crmRepository
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"github.com/augusto/imersao5-esquenta-go/entity/crm/pedido"
@@ -181,6 +182,50 @@ func (t PedidoRepositoryDbErp) SelectQuoteItem(owner string, id string) ([]pedid
 func (t PedidoRepositoryDbErp) DeleteSincroniza(owner string, id string) error {
 	fmt.Println("Recebi o comando de delete no owner", owner, "e com o id", id)
 
-	//Iniciar uma transação...
+	//Iniciando o contexto de transação
+	ctx := context.Background()
+	tx, _ := t.db.BeginTx(ctx, nil)
+
+	quoteQueryString := utils.Msg(`DELETE FROM {{.owner}}.tb_crm_sincroniza
+						WHERE pk = '{{.id}}' and tipo IN ('I','U') and tabela = 'CPV'`,
+		map[string]interface{}{
+			"owner": owner,
+			"id":    id,
+		},
+	)
+
+	_, quoteErr := tx.ExecContext(ctx, quoteQueryString)
+
+	if quoteErr != nil {
+		utils.LogFile("CRM/PEDIDO", " delete", "CRITICAL ", quoteErr.Error(), quoteQueryString)
+		tx.Rollback()
+		return quoteErr
+	}
+
+	quoteItemQueryString := utils.Msg(`DELETE FROM {{.owner}}.tb_crm_sincroniza
+						WHERE pk = '{{.id}}' and tipo IN ('I','U') and tabela = 'IPV'`,
+		map[string]interface{}{
+			"owner": owner,
+			"id":    id,
+		},
+	)
+
+	_, quoteItemErr := tx.ExecContext(ctx, quoteItemQueryString)
+
+	if quoteItemErr != nil {
+		utils.LogFile("CRM/PEDIDO", " delete", "CRITICAL ", quoteItemErr.Error(), quoteQueryString)
+		tx.Rollback()
+		return quoteItemErr
+	}
+
+	//commit := tx.Commit()
+
+	//if commit != nil {
+	//	log.Println("Erro ao realizar o commit de delete")
+	//	utils.LogFile("CRM/PEDIDO", " delete", "CRITICAL ", commit.Error(), "Commit da transação")
+	//	return commit
+	//}
+
+	log.Println("Consegui executar tods os deletes")
 	return nil
 }

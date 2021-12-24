@@ -3,5 +3,7 @@ package crm
 import "github.com/augusto/imersao5-esquenta-go/entity/crm/cfr"
 
 type CfrRepository interface {
-	Select() ([]cfr.Cfr, error)
+	SelectCrm(owner string) ([]cfr.Account, error)
+	CheckUpdateErp(id string) (bool, error)
+	UpdateErp(account cfr.Account, owner string) error
 }

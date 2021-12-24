@@ -15,6 +15,7 @@ func (t CfrControllerErp) CallCfrService(c *gin.Context) {
 	resp := erp_crm.CfrService(c.Request.Header.Get("x-token"))
 
 	if resp != nil {
+		utils.LogFile("CRM/CFR", " SERVER_ERROR", "CRITICAL ", resp.Error(), "Erro na manipulação do banco no service")
 		c.JSON(http.StatusConflict, utils.Error{
 			StatusCode:  http.StatusConflict,
 			Message:     resp.Error(),

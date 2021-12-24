@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"log"
 	"path/filepath"
+	"strings"
 )
 
 func LogDatabase(clientId string, tabela string, tipo string, pk string, errCase bool, message string) {
@@ -37,7 +38,12 @@ func LogDatabase(clientId string, tabela string, tipo string, pk string, errCase
 	}
 	defer dbLog.Close()
 
+	//Retirando todas as aspas da mensagem de erro, para evitar error no PG
+	message = strings.ReplaceAll(message, "'", "")
+
 	queryString := fmt.Sprintf("INSERT INTO tb_logs (cliente,tabela,tipo,pk,error,message) VALUES ('%s','%s','%s','%s','%v','%s')", clientId, tabela, tipo, pk, errCase, message)
+
+	//fmt.Println(queryString)
 
 	r, queryError := dbLog.Exec(queryString)
 	if queryError != nil {

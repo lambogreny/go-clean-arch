@@ -24,15 +24,14 @@ func Int(value sql.NullInt64) int64 {
 	return 0
 }
 
-//#TODO
-func PrintJson() {
-
-	//u, err := json.Marshal(x)
-	//
-	//if err != nil {
-	//	return nil, err
-	//}
-	//
-	//fmt.Println(string(u))
-
+/*
+	Função para casos de metadados booleano no SQL
+	Recebe um sql.NullString e valida se o string é válida
+	Se for válida, devolve o próprio valor, senão dovolve "f'
+*/
+func StringBoolean(value sql.NullString) string {
+	if value.Valid {
+		return value.String
+	}
+	return "f"
 }
