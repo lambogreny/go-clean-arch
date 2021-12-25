@@ -18,6 +18,10 @@ RUN go mod download
 # Copiando o código para o container
 COPY . .
 
+# Copiando os arquivos de configuração JSON para o container
+COPY ./data/databases.json /dist/data/databases.json
+COPY ./data/crm/relationDatabases.json /dist/data/crm/relationDatabases.json
+
 # Realizando o build do app
 RUN go build -o main .
 

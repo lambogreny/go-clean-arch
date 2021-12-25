@@ -21,9 +21,6 @@ func CfrService(clientId string) error {
 	//Chama a função que retorna as duas conexões
 	dbCrmConn, dbErpConn, ownerCrm, connError := crm.ServicesDatabases(clientId)
 
-	//fmt.Println("O dbCrm é : ", dbCrmConn)
-	//fmt.Println("O dbErpConn é : ", dbErpConn.Stats())
-
 	if connError != nil {
 		return connError
 	}
