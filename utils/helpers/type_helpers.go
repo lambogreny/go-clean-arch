@@ -30,8 +30,20 @@ func Int(value sql.NullInt64) int64 {
 	Se for válida, devolve o próprio valor, senão dovolve "f'
 */
 func StringBoolean(value sql.NullString) string {
-	if value.Valid {
+	if value.Valid || value.String == "t" || value.String == "f" {
 		return value.String
 	}
 	return "f"
+}
+
+/*
+	Função para casos de metadados float64 no SQL
+	Recebe um sql.NullFloat64 e valida se o número é válido
+	Se for válida, devolve o próprio valor, senão dovolve 0.0
+*/
+func Float64(value sql.NullFloat64) float64 {
+	if value.Valid {
+		return value.Float64
+	}
+	return 0.0
 }

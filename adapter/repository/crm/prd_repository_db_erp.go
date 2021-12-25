@@ -30,7 +30,7 @@ func (t PrdRepositoryDbErp) CheckUpdateCrm(codigoProduto string) (bool, error) {
 
 	for rows.Next() {
 		if err := rows.Scan(&count); err != nil {
-			log.Println("Erro ao buscar o produto!")
+			utils.LogFile("CRM/PRD", " checkUpdate", "CRITICAL ", err.Error(), queryString)
 			return false, err
 		}
 	}
@@ -100,9 +100,6 @@ func (t PrdRepositoryDbErp) Update(prd prd.Prd, owner string) error {
 
 	_, err := tx.ExecContext(ctx, queryString)
 
-	//Log de controle
-	//utils.LogFile("CRM/PRD", " update", "INFO ", "err.Error()", queryString)
-
 	if err != nil {
 		utils.LogFile("CRM/PRD", " update", "CRITICAL ", err.Error(), queryString)
 		tx.Rollback()
@@ -112,8 +109,8 @@ func (t PrdRepositoryDbErp) Update(prd prd.Prd, owner string) error {
 	commit := tx.Commit()
 
 	if commit != nil {
-		log.Println("Não consegui commitar!")
-		return err
+		utils.LogFile("CRM/PRD", " update", "CRITICAL ", err.Error(), queryString)
+		return commit
 	}
 
 	//Retirando esse check pois não considera se não houve nenhuma mudança (r do ExecContext)
@@ -140,15 +137,15 @@ func (t PrdRepositoryDbErp) Delete(codigoProduto string, tipo string) error {
 	_, err := tx.ExecContext(ctx, queryString)
 
 	if err != nil {
+		utils.LogFile("CRM/PRD", " delete", "CRITICAL ", err.Error(), queryString)
 		tx.Rollback()
 		return err
 	}
-	fmt.Println(queryString)
 
 	commit := tx.Commit()
 
 	if commit != nil {
-		log.Println("Não consegui commitar!")
+		utils.LogFile("CRM/PRD", " delete", "CRITICAL ", commit.Error(), queryString)
 		return err
 	}
 
@@ -185,8 +182,6 @@ func (t PrdRepositoryDbErp) Select() ([]prd.Prd, error) {
 
 	if err != nil {
 		utils.LogFile("ERROR", " prd", "CRITICAL ", err.Error(), queryString)
-		log.Println("could not execute query:", err)
-
 		return []prd.Prd{}, err
 	}
 
@@ -318,8 +313,8 @@ func (t PrdRepositoryDbErp) Insert(prd prd.Prd, owner string) error {
 	commit := tx.Commit()
 
 	if commit != nil {
-		log.Println("Não consegui commitar!")
-		return err
+		utils.LogFile("CRM/PRD", " insert", "CRITICAL ", err.Error(), queryString)
+		return commit
 	}
 
 	fmt.Println(queryString)

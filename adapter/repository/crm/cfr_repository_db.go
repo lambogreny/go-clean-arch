@@ -79,10 +79,10 @@ func (t CfrRepositoryDbErp) SelectCrm(owner string) ([]cfr.Account, error) {
                                     '' AS cobrpadrao_cliente,
                                     '' AS portpadrao_cliente,
                                     current_timestamp AS created_at,
-                                    '' AS zonafranca,
+                                    'f' AS zonafranca,
                                     '' AS inscricao_suframa,
                                     '' AS vendedor1,
-                                    '' AS comissao1_fat,
+                                    0.0 AS comissao1_fat,
                                     '' AS transp_padr_clie,
                                     '' AS tipo_frete,
                                     endereco,
@@ -96,8 +96,8 @@ func (t CfrRepositoryDbErp) SelectCrm(owner string) ([]cfr.Account, error) {
                                     'CRM' AS created_by_id,
                                     current_timestamp AS modified_at,
                                     'CRM' AS modified_by_id,
-                                    '' AS ende_latitude,
-                                    '' AS ende_longitude,
+                                    0.0 AS ende_latitude,
+                                    0.0 AS ende_longitude,
                                     TI9CODIGO,
                                     '001' AS categoria_cliente,
                                     'f' AS opt_simples,
@@ -116,7 +116,9 @@ func (t CfrRepositoryDbErp) SelectCrm(owner string) ([]cfr.Account, error) {
                                     status,
                                     origem,
                                     conta_contabil,
-                                    conta_sintetica
+                                    conta_sintetica,
+                                    (SELECT codigomunicipio FROM cadastro_municpios WHERE cadastro_municpios.id = account.cadastro_municpios_id) AS cidade,
+									(SELECT uf FROM cadastro_municpios WHERE cadastro_municpios.id = account.cadastro_municpios_id) AS uf
                                     from
                                     {{.owner}}.account
                                     inner join {{.owner}}.tb_crm_sincroniza ON id = pk
@@ -209,6 +211,8 @@ func (t CfrRepositoryDbErp) SelectCrm(owner string) ([]cfr.Account, error) {
 			&account.Origem,
 			&account.ContaContabil,
 			&account.ContaSintetica,
+			&account.Cidade,
+			&account.Uf,
 		); err != nil {
 			log.Println(err.Error())
 			return nil, err
@@ -299,8 +303,8 @@ func (t CfrRepositoryDbErp) UpdateErp(account cfr.Account, owner string) error {
 		"numeroend":               helpers.String(account.NumeroEnd),
 		"end_complemento":         helpers.String(account.EndComplemento),
 		"bairro":                  helpers.String(account.Bairro),
-		"cidade":                  helpers.String(account.BillingAddressCity),
-		"uf":                      helpers.String(account.BillingAdressState),
+		"cidade":                  helpers.String(account.Cidade),
+		"uf":                      helpers.String(account.Uf),
 		"cep":                     helpers.String(account.Cep),
 		"pais":                    helpers.String(account.BillingAdressCountry),
 		"telefone_1":              helpers.String(account.Telefone1),
@@ -309,50 +313,49 @@ func (t CfrRepositoryDbErp) UpdateErp(account cfr.Account, owner string) error {
 		"email":                   helpers.String(account.Email),
 		"emailnfe":                helpers.String(account.EmailNfe),
 		"home_page":               helpers.String(account.WebSite),
-		"nosso_cliente":           helpers.String(account.NossoCliente),
+		"nosso_cliente":           helpers.StringBoolean(account.NossoCliente),
 		"cond_pg_padrao_clie":     helpers.String(account.CondPgPadraoClie),
 		"docpadrao_cliente":       helpers.String(account.DocPadraoCliente),
 		"cobrpadrao_cliente":      helpers.String(account.CobrPadraoCliente),
 		"portpadrao_cliente":      helpers.String(account.PortPadraoCliente),
 		"status":                  helpers.String(account.Status),
 		"data_cad":                helpers.String(account.CreatedAt),
-		"zonafranca":              helpers.String(account.ZonaFranca),
+		"zonafranca":              helpers.StringBoolean(account.ZonaFranca),
 		"inscricao_suframa":       helpers.String(account.InscricaoSuframa),
 		"vendedor1":               helpers.String(account.Vendedor1),
-		"comissao1_fat":           helpers.String(account.Comissao1Fat),
+		"comissao1_fat":           helpers.Float64(account.Comissao1Fat),
 		"transp_padr_clie":        helpers.String(account.TranspPadraoCliente),
 		"tipo_frete":              helpers.String(account.TipoFrete),
 		"endereco_cobranca":       helpers.String(account.EnderecoCobranca),
 		"bairro_cobranca":         helpers.String(account.BairroCobranca),
+		"cidade_cobranca":         helpers.String(account.CidadeCobranca),
 		"uf_cobranca":             helpers.String(account.UfCobranca),
 		"cep_cobranca":            helpers.String(account.CepCobranca),
 		"data_hora_inclusao":      helpers.String(account.ModifiedAt),
 		"usuario_inclusao":        helpers.String(account.CreatedById),
 		"data_hora_alteracao":     helpers.String(account.ModifiedAt),
 		"usuario_alteracao":       helpers.String(account.ModifiedById),
-		"ende_latitude":           helpers.String(account.EndeLatitude),
-		"ende_longitude":          helpers.String(account.EndeLongitude),
+		"ende_latitude":           helpers.Float64(account.EndeLatitude),
+		"ende_longitude":          helpers.Float64(account.EndeLongitude),
 		"categoria_cliente":       helpers.String(account.CategoriaCliente),
 		"opt_simples":             helpers.StringBoolean(account.OptSimples),
 		"contrib_icms":            helpers.StringBoolean(account.ContribIcms),
 		"consumidor_final":        helpers.StringBoolean(account.ConsumidorFinal),
 		"ck_ver_vencto_lote":      helpers.StringBoolean(account.CkVerVenctoLote),
 		"qtde_min_vencto_lote":    helpers.String(account.QtdeMinVenctoLote),
-		"inss_ret":                helpers.String(account.InssRet),
+		"inss_ret":                helpers.StringBoolean(account.InssRet),
 		"isento_icms":             helpers.StringBoolean(account.IsentoIcms),
-		"ret_piscofcsll":          helpers.String(account.RetPiscoFcsvll),
-		"ret_iss":                 helpers.String(account.RetIss),
-		"ret_iss_fonte":           helpers.String(account.RetIssFonte),
-		"subst_tribut_icms":       helpers.String(account.SubstTributIcms),
-		"subst_tribut_pis":        helpers.String(account.SubstTributPis),
-		"subst_tribut_cofins":     helpers.String(account.SubstTributConfis),
+		"ret_piscofcsll":          helpers.StringBoolean(account.RetPiscoFcsvll),
+		"ret_iss":                 helpers.StringBoolean(account.RetIss),
+		"ret_iss_fonte":           helpers.StringBoolean(account.RetIssFonte),
+		"subst_tribut_icms":       helpers.StringBoolean(account.SubstTributIcms),
+		"subst_tribut_pis":        helpers.StringBoolean(account.SubstTributPis),
+		"subst_tribut_cofins":     helpers.StringBoolean(account.SubstTributConfis),
 		"origem":                  helpers.String(account.Origem),
 		"conta_contabil_clie_1":   helpers.String(account.ContaContabil),
 		"conta_contabil_s_clie_1": helpers.String(account.ContaSintetica),
 		"codigo_pessoa":           helpers.String(account.Ti9Codigo),
 	})
-
-	fmt.Println(queryString)
 
 	//Iniciando uma transação
 	ctx := context.Background()
@@ -366,7 +369,18 @@ func (t CfrRepositoryDbErp) UpdateErp(account cfr.Account, owner string) error {
 		return err
 	}
 
+	//commit := tx.Commit()
+	//
+	//if commit != nil {
+	//	utils.LogFile("CRM/CFR", " update", "CRITICAL ", err.Error(), queryString)
+	//	return commit
+	//}
+
 	fmt.Println(queryString)
 	return nil
 
+}
+
+func (t CfrRepositoryDbErp) DeleteCrm(owner string, id string) error {
+	return nil
 }

@@ -26,7 +26,7 @@ Para rodar os testes: `go test -v`  || para rodar em todas as pastas : `go test 
 **obs**:Funcionando
 
 Criando um docker file
-`docker build . -t go-dock`
+`docker build . -t go-dock:0.1`
 
 Executando o container
-`docker run -p 8080:8080 go-dock`
+`docker run -p 8080:8080 go-dock:0.1`

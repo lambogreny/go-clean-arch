@@ -43,7 +43,7 @@ type Account struct {
 	ZonaFranca              sql.NullString
 	InscricaoSuframa        sql.NullString
 	Vendedor1               sql.NullString
-	Comissao1Fat            sql.NullString
+	Comissao1Fat            sql.NullFloat64
 	TranspPadraoCliente     sql.NullString
 	TipoFrete               sql.NullString
 	Endereco                sql.NullString
@@ -57,8 +57,8 @@ type Account struct {
 	CreatedById             sql.NullString
 	ModifiedAt              sql.NullString
 	ModifiedById            sql.NullString
-	EndeLatitude            sql.NullString
-	EndeLongitude           sql.NullString
+	EndeLatitude            sql.NullFloat64
+	EndeLongitude           sql.NullFloat64
 	Ti9Codigo               sql.NullString
 	CategoriaCliente        sql.NullString
 	OptSimples              sql.NullString
@@ -78,6 +78,8 @@ type Account struct {
 	Origem                  sql.NullString
 	ContaContabil           sql.NullString
 	ContaSintetica          sql.NullString
+	Cidade                  sql.NullString
+	Uf                      sql.NullString
 }
 
 type Cfr struct {

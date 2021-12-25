@@ -56,16 +56,18 @@ func CfrService(clientId string) error {
 				utils.LogDatabase(clientId, "CFR", "I", helpers.String(x.Id), true, IErr.Error())
 				return IErr
 			}
-			//fmt.Println("Inserir, porém checando o Ti9")
+
 		case "U":
 			//fmt.Println("Atualizar")
 		}
+		utils.LogDatabase(clientId, "CFR", helpers.String(x.Tipo), helpers.String(x.Id), false, "")
 
 	}
 	return nil
 }
 
 func CfrInsertWithCheck(usecaseCrm *cfr.ProcessCfr, usecaseErp *cfr.ProcessCfr, x cfr2.Account, crmOwner string) error {
+
 	//Checando o se deve realizar o update
 	checkUpdate, err := usecaseErp.UserCaseCheckUpdateErp(helpers.String(x.Id))
 	if err != nil {
@@ -75,7 +77,10 @@ func CfrInsertWithCheck(usecaseCrm *cfr.ProcessCfr, usecaseErp *cfr.ProcessCfr, 
 	switch checkUpdate {
 	case true:
 		fmt.Println("Atualização")
-		err := usecaseErp.UseCaseUpdate(x, crmOwner)
+		UpdateErr := usecaseErp.UseCaseUpdate(x, crmOwner)
+		if UpdateErr != nil {
+			return UpdateErr
+		}
 
 		if err != nil {
 			return err
@@ -83,6 +88,6 @@ func CfrInsertWithCheck(usecaseCrm *cfr.ProcessCfr, usecaseErp *cfr.ProcessCfr, 
 	case false:
 		fmt.Println("Insert")
 	}
-	fmt.Println(checkUpdate)
+
 	return nil
 }
