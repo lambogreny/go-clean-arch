@@ -9,6 +9,7 @@ import (
 	"github.com/augusto/imersao5-esquenta-go/utils"
 	"github.com/augusto/imersao5-esquenta-go/utils/helpers"
 	"log"
+	"strings"
 )
 
 func CfrService(clientId string) error {
@@ -49,14 +50,26 @@ func CfrService(clientId string) error {
 		switch helpers.String(x.Tipo) {
 		case "I":
 			IErr := CfrInsertWithCheck(usecaseCrm, usecaseErp, x, ownerCrm)
+
 			if IErr != nil {
-				utils.LogDatabase(clientId, "CFR", "I", helpers.String(x.Id), true, IErr.Error())
-				return IErr
+				switch {
+				//Para casos de duplicate key, apenas loga e continua o loop
+				case strings.Contains(IErr.Error(), "duplicate key"):
+					utils.LogDatabase(clientId, "CFR", "I", helpers.String(x.Id), true, IErr.Error())
+				default:
+					return IErr
+				}
 			}
 
 		case "U":
-			//fmt.Println("Atualizar")
+			UErr := CfrUpdate(usecaseCrm, usecaseErp, x, ownerCrm)
+
+			if UErr != nil {
+				utils.LogDatabase(clientId, "CFR", "U", helpers.String(x.Id), true, UErr.Error())
+				return UErr
+			}
 		}
+
 		utils.LogDatabase(clientId, "CFR", helpers.String(x.Tipo), helpers.String(x.Id), false, "")
 
 	}
@@ -73,17 +86,34 @@ func CfrInsertWithCheck(usecaseCrm *cfr.ProcessCfr, usecaseErp *cfr.ProcessCfr, 
 
 	switch checkUpdate {
 	case true:
-		fmt.Println("Atualização")
+
 		UpdateErr := usecaseErp.UseCaseUpdate(x, crmOwner)
 		if UpdateErr != nil {
 			return UpdateErr
 		}
+		deleteErr := usecaseErp.UseCaseDelete(helpers.String(x.Id), crmOwner)
 
-		if err != nil {
-			return err
+		if deleteErr != nil {
+			return deleteErr
 		}
+
 	case false:
 		fmt.Println("Insert")
+		InsertErr := usecaseErp.UseCaseInsert(x, crmOwner)
+
+		if InsertErr != nil {
+			return InsertErr
+		}
+	}
+
+	return nil
+}
+
+func CfrUpdate(usecaseCrm *cfr.ProcessCfr, usecaseErp *cfr.ProcessCfr, x cfr2.Account, crmOwner string) error {
+
+	UpdateErr := usecaseErp.UseCaseUpdate(x, crmOwner)
+	if UpdateErr != nil {
+		return UpdateErr
 	}
 
 	return nil

@@ -23,6 +23,7 @@ Para rodar os testes: `go test -v`  || para rodar em todas as pastas : `go test 
 *exemplo* : TestFirstExample
 
 ##Docker 
+**referência**: https://levelup.gitconnected.com/complete-guide-to-create-docker-container-for-your-golang-application-80f3fb59a15e
 **obs**:Funcionando
 
 Criando um docker file

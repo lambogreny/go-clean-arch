@@ -384,3 +384,272 @@ func (t CfrRepositoryDbErp) UpdateErp(account cfr.Account, owner string) error {
 func (t CfrRepositoryDbErp) DeleteCrm(owner string, id string) error {
 	return nil
 }
+
+func (t CfrRepositoryDbErp) InsertErp(account cfr.Account, owner string) error {
+
+	//Iniciando uma transação
+	ctx := context.Background()
+	tx, _ := t.db.BeginTx(ctx, nil)
+
+	// ----------------------------------------------------------- Selecionando os valores da sys sequencial ------------------------------------------------------------//
+
+	var v_valor int
+	var valor_final int
+
+	sqlGetSysSequencial := `SELECT
+                                        valor AS v_valor,
+                                        LPAD((valor::integer + 1) :: text, 6, '0') AS valor_final
+                                    FROM
+                                        sys_sequencial
+                                    WHERE
+                                        tabela = 'cfr'`
+	err := tx.QueryRowContext(ctx, sqlGetSysSequencial).Scan(&v_valor, &valor_final)
+
+	switch {
+	case err == sql.ErrNoRows:
+		fmt.Errorf("Valores da sys sequencial não encontrados!")
+		return err
+	case err != nil:
+		return err
+	}
+
+	// ----------------------------------------------------------- Realizando update da sys sequencial ------------------------------------------------------------//
+
+	sqlUpdateSysSequencial := fmt.Sprintf(`UPDATE
+                                            sys_sequencial
+                                        set
+                                            valor_anterior = %d,
+                                            valor = %d
+                                        where
+                                            tabela = 'cfr'`, v_valor, valor_final)
+	_, updateErr := tx.ExecContext(ctx, sqlUpdateSysSequencial)
+
+	if updateErr != nil {
+		utils.LogFile("CRM/CFR", " insert", "CRITICAL ", updateErr.Error(), sqlUpdateSysSequencial)
+		tx.Rollback()
+		return updateErr
+	}
+
+	// ----------------------------------------------------------- Realizando o insert na CFR ------------------------------------------------------------//
+
+	sqlInsert := utils.Msg(`INSERT INTO cfr (
+                                        nome_pessoa ,
+                                        nome_fantasia ,
+                                        natureza_pessoa ,
+                                        cnpj_cpf ,
+                                        inscricao_estadual ,
+                                        sitfed ,
+                                        siticms ,
+                                        sitipi ,
+                                        endereco ,
+                                        numeroend ,
+                                        end_complemento ,
+                                        bairro ,
+                                        cidade ,
+                                        uf ,
+                                        cep ,
+                                        pais ,
+                                        telefone_1 ,
+                                        telefone_2 ,
+                                        contato ,
+                                        email ,
+                                        emailnfe ,
+                                        home_page ,
+                                        nosso_cliente ,
+                                        cond_pg_padrao_clie ,
+                                        docpadrao_cliente ,
+                                        cobrpadrao_cliente ,
+                                        portpadrao_cliente ,
+                                        status ,
+                                        data_cad ,
+                                        zonafranca ,
+                                        inscricao_suframa ,
+                                        vendedor1 ,
+                                        comissao1_fat ,
+                                        transp_padr_clie ,
+                                        tipo_frete ,
+                                        endereco_cobranca ,
+                                        bairro_cobranca ,
+                                        cidade_cobranca ,
+                                        uf_cobranca ,
+                                        cep_cobranca ,
+                                        data_hora_inclusao ,
+                                        usuario_inclusao ,
+                                        data_hora_alteracao ,
+                                        usuario_alteracao ,
+                                        ende_latitude ,
+                                        ende_longitude ,
+                                        categoria_cliente ,
+                                        opt_simples ,
+                                        contrib_icms ,
+                                        consumidor_final ,
+                                        ck_ver_vencto_lote ,
+                                        qtde_min_vencto_lote ,
+                                        inss_ret ,
+                                        isento_icms ,
+                                        ret_piscofcsll ,
+                                        ret_iss ,
+                                        ret_iss_fonte ,
+                                        subst_tribut_icms ,
+                                        subst_tribut_pis ,
+                                        subst_tribut_cofins ,
+                                        origem ,
+                                        conta_contabil_clie_1 ,
+                                        conta_contabil_s_clie_1 
+										)
+										VALUES(
+										'{{.nome_pessoa}}',
+										'{{.nome_fantasia}}',
+										'{{.natureza_pessoa}}',
+										'{{.cnpj_cpf}}',
+										'{{.inscricao_estadual}}',
+										'{{.sitfed}}',
+										'{{.siticms}}',
+										'{{.sitipi}}',
+										'{{.endereco}}',
+										'{{.numeroend}}',
+										'{{.end_complemento}}',
+										'{{.bairro}}',
+										'{{.cidade}}',
+										'{{.uf}}',
+										'{{.cep}}',
+										'{{.pais}}',
+										'{{.telefone_1}}',
+										'{{.telefone_2}}',
+										'{{.contato}}',
+										'{{.email}}',
+										'{{.emailnfe}}',
+										'{{.home_page}}',
+										'{{.nosso_cliente}}',
+										'{{.cond_pg_padrao_clie}}',
+										'{{.docpadrao_cliente}}',
+										'{{.cobrpadrao_cliente}}',
+										'{{.portpadrao_cliente}}',
+										'{{.status}}',
+										'{{.data_cad}}',
+										'{{.zonafranca}}',
+										'{{.inscricao_suframa}}',
+										'{{.vendedor1}}',
+										'{{.comissao1_fat}}',
+										'{{.transp_padr_clie}}',
+										'{{.tipo_frete}}',
+										'{{.endereco_cobranca}}',
+										'{{.bairro_cobranca}}',
+										'{{.cidade_cobranca}}',
+										'{{.uf_cobranca}}',
+										'{{.cep_cobranca}}',
+										'{{.data_hora_inclusao}}',
+										'{{.usuario_inclusao}}',
+										'{{.data_hora_alteracao}}',
+										'{{.usuario_alteracao}}',
+										'{{.ende_latitude}}',
+										'{{.ende_longitude}}',
+										'{{.categoria_cliente}}',
+										'{{.opt_simples}}',
+										'{{.contrib_icms}}',
+										'{{.consumidor_final}}',
+										'{{.ck_ver_vencto_lote}}',
+										'{{.qtde_min_vencto_lote}}',
+										'{{.inss_ret}}',
+										'{{.isento_icms}}',
+										'{{.ret_piscofcsll}}',
+										'{{.ret_iss}}',
+										'{{.ret_iss_fonte}}',
+										'{{.subst_tribut_icms}}',
+										'{{.subst_tribut_pis}}',
+										'{{.subst_tribut_cofins}}',
+										'{{.origem}}',
+										'{{.conta_contabil_clie_1}}',
+										'{{.conta_contabil_s_clie_1}}'
+										)
+									`, map[string]interface{}{
+		"nome_pessoa":             helpers.String(account.Name),
+		"nome_fantasia":           helpers.String(account.NomeFantasia),
+		"natureza_pessoa":         helpers.String(account.NaturezaPessoa),
+		"cnpj_cpf":                helpers.String(account.SicCode),
+		"inscricao_estadual":      helpers.String(account.InscricaoEstadual),
+		"sitfed":                  helpers.String(account.SitFed),
+		"siticms":                 helpers.String(account.SitCms),
+		"sitipi":                  helpers.String(account.SitIpi),
+		"endereco":                helpers.String(account.Endereco),
+		"numeroend":               helpers.String(account.NumeroEnd),
+		"end_complemento":         helpers.String(account.EndComplemento),
+		"bairro":                  helpers.String(account.Bairro),
+		"cidade":                  helpers.String(account.Cidade),
+		"uf":                      helpers.String(account.Uf),
+		"cep":                     helpers.String(account.Cep),
+		"pais":                    helpers.String(account.BillingAdressCountry),
+		"telefone_1":              helpers.String(account.Telefone1),
+		"telefone_2":              helpers.String(account.Telefone2),
+		"contato":                 helpers.String(account.Contato),
+		"email":                   helpers.String(account.Email),
+		"emailnfe":                helpers.String(account.EmailNfe),
+		"home_page":               helpers.String(account.WebSite),
+		"nosso_cliente":           helpers.StringBoolean(account.NossoCliente),
+		"cond_pg_padrao_clie":     helpers.String(account.CondPgPadraoClie),
+		"docpadrao_cliente":       helpers.String(account.DocPadraoCliente),
+		"cobrpadrao_cliente":      helpers.String(account.CobrPadraoCliente),
+		"portpadrao_cliente":      helpers.String(account.PortPadraoCliente),
+		"status":                  helpers.String(account.Status),
+		"data_cad":                helpers.String(account.CreatedAt),
+		"zonafranca":              helpers.StringBoolean(account.ZonaFranca),
+		"inscricao_suframa":       helpers.String(account.InscricaoSuframa),
+		"vendedor1":               helpers.String(account.Vendedor1),
+		"comissao1_fat":           helpers.Float64(account.Comissao1Fat),
+		"transp_padr_clie":        helpers.String(account.TranspPadraoCliente),
+		"tipo_frete":              helpers.String(account.TipoFrete),
+		"endereco_cobranca":       helpers.String(account.EnderecoCobranca),
+		"bairro_cobranca":         helpers.String(account.BairroCobranca),
+		"cidade_cobranca":         helpers.String(account.CidadeCobranca),
+		"uf_cobranca":             helpers.String(account.UfCobranca),
+		"cep_cobranca":            helpers.String(account.CepCobranca),
+		"data_hora_inclusao":      helpers.String(account.ModifiedAt),
+		"usuario_inclusao":        helpers.String(account.CreatedById),
+		"data_hora_alteracao":     helpers.String(account.ModifiedAt),
+		"usuario_alteracao":       helpers.String(account.ModifiedById),
+		"ende_latitude":           helpers.Float64(account.EndeLatitude),
+		"ende_longitude":          helpers.Float64(account.EndeLongitude),
+		"categoria_cliente":       helpers.String(account.CategoriaCliente),
+		"opt_simples":             helpers.StringBoolean(account.OptSimples),
+		"contrib_icms":            helpers.StringBoolean(account.ContribIcms),
+		"consumidor_final":        helpers.StringBoolean(account.ConsumidorFinal),
+		"ck_ver_vencto_lote":      helpers.StringBoolean(account.CkVerVenctoLote),
+		"qtde_min_vencto_lote":    helpers.String(account.QtdeMinVenctoLote),
+		"inss_ret":                helpers.StringBoolean(account.InssRet),
+		"isento_icms":             helpers.StringBoolean(account.IsentoIcms),
+		"ret_piscofcsll":          helpers.StringBoolean(account.RetPiscoFcsvll),
+		"ret_iss":                 helpers.StringBoolean(account.RetIss),
+		"ret_iss_fonte":           helpers.StringBoolean(account.RetIssFonte),
+		"subst_tribut_icms":       helpers.StringBoolean(account.SubstTributIcms),
+		"subst_tribut_pis":        helpers.StringBoolean(account.SubstTributPis),
+		"subst_tribut_cofins":     helpers.StringBoolean(account.SubstTributConfis),
+		"origem":                  helpers.String(account.Origem),
+		"conta_contabil_clie_1":   helpers.String(account.ContaContabil),
+		"conta_contabil_s_clie_1": helpers.String(account.ContaSintetica),
+		"codigo_pessoa":           helpers.String(account.Ti9Codigo),
+	})
+
+	fmt.Println(sqlInsert)
+
+	_, insertErr := tx.ExecContext(ctx, sqlInsert)
+
+	//switch {
+	//case insertErr == pq.Error{}:
+	//	fmt.Println("Aqui o erro de duplicate ")
+	//}
+
+	if insertErr != nil {
+		utils.LogFile("CRM/CFR", " insert", "CRITICAL ", insertErr.Error(), sqlInsert)
+		tx.Rollback()
+		return insertErr
+	}
+
+	//commit := tx.Commit()
+	//
+	//if commit != nil {
+	//	utils.LogFile("CRM/CFR", " update", "CRITICAL ", err.Error(), queryString)
+	//	return commit
+	//}
+
+	return nil
+}

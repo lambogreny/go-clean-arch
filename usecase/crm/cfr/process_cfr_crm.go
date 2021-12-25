@@ -42,3 +42,22 @@ func (p *ProcessCfr) UseCaseUpdate(account cfr.Account, owner string) error {
 
 	return nil
 }
+
+func (p *ProcessCfr) UseCaseInsert(account cfr.Account, owner string) error {
+	err := p.Repository.InsertErp(account, owner)
+
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ProcessCfr) UseCaseDelete(id string, owner string) error {
+
+	err := p.Repository.DeleteCrm(id, owner)
+
+	if err != nil {
+		return err
+	}
+	return nil
+}
