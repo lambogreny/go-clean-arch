@@ -28,6 +28,9 @@ RUN go build -o main .
 # Movendo o arquivo binário para a pasta /dist
 WORKDIR /dist
 
+# Comando para dar permissões para a pasta dentro do conteiner
+#RUN chmod -R 777 ./
+
 # Copiando o binário para a pasta /main
 RUN cp /build/main .
 

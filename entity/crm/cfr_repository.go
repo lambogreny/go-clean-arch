@@ -6,6 +6,6 @@ type CfrRepository interface {
 	SelectCrm(owner string) ([]cfr.Account, error)
 	CheckUpdateErp(id string) (bool, error)
 	UpdateErp(account cfr.Account, owner string) error
-	DeleteCrm(owner string, id string) error //#TODO
+	DeleteCrm(owner string, id string, tipo string) error
 	InsertErp(account cfr.Account, owner string) error
 }

@@ -3,6 +3,7 @@ package cfr
 import (
 	"github.com/augusto/imersao5-esquenta-go/entity/crm"
 	"github.com/augusto/imersao5-esquenta-go/entity/crm/cfr"
+	"log"
 )
 
 type ProcessCfr struct {
@@ -34,7 +35,9 @@ func (p *ProcessCfr) UseCaseSelect(owner string) ([]cfr.Account, error) {
 }
 
 func (p *ProcessCfr) UseCaseUpdate(account cfr.Account, owner string) error {
+
 	err := p.Repository.UpdateErp(account, owner)
+	log.Println(err)
 
 	if err != nil {
 		return err
@@ -52,9 +55,9 @@ func (p *ProcessCfr) UseCaseInsert(account cfr.Account, owner string) error {
 	return nil
 }
 
-func (p *ProcessCfr) UseCaseDelete(id string, owner string) error {
+func (p *ProcessCfr) UseCaseDelete(id string, owner string, tipo string) error {
 
-	err := p.Repository.DeleteCrm(id, owner)
+	err := p.Repository.DeleteCrm(owner, id, tipo)
 
 	if err != nil {
 		return err

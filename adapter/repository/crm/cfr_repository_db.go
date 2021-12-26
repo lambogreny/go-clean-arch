@@ -31,7 +31,7 @@ func (t CfrRepositoryDbErp) CheckUpdateErp(id string) (bool, error) {
 
 	for rows.Next() {
 		if err := rows.Scan(&count); err != nil {
-			log.Println("Erro ao checar o update na CFR")
+			utils.LogFile("CRM/CFR", " check", "CRITICAL ", err.Error(), queryString)
 			return false, err
 		}
 	}
@@ -89,10 +89,10 @@ func (t CfrRepositoryDbErp) SelectCrm(owner string) ([]cfr.Account, error) {
                                     enderecocobranca AS endereco_cobranca,
                                     numeroendcobranca as numeroend_cobranca,
                                     bairroCobranca as bairro_cobranca,
-                                    (SELECT codigomunicipio FROM cadastro_municpios WHERE cadastro_municpios.id = account.cadastro_municpios_id) AS cidade_cobranca,
-                                    (SELECT uf FROM cadastro_municpios WHERE cadastro_municpios.id = account.cadastro_municpios_id) AS uf_cobranca,
+                                    (SELECT codigomunicipio FROM cadastro_municpios WHERE cadastro_municpios.id = account.cadastro_municpios12_id) AS cidade_cobranca,
+                                    (SELECT uf FROM cadastro_municpios WHERE cadastro_municpios.id = account.cadastro_municpios12_id) AS uf_cobranca,
                                     cep,
-                                    cep as cep_cobranca,
+                                    cepCobranca as cep_cobranca,
                                     'CRM' AS created_by_id,
                                     current_timestamp AS modified_at,
                                     'CRM' AS modified_by_id,
@@ -118,13 +118,15 @@ func (t CfrRepositoryDbErp) SelectCrm(owner string) ([]cfr.Account, error) {
                                     conta_contabil,
                                     conta_sintetica,
                                     (SELECT codigomunicipio FROM cadastro_municpios WHERE cadastro_municpios.id = account.cadastro_municpios_id) AS cidade,
-									(SELECT uf FROM cadastro_municpios WHERE cadastro_municpios.id = account.cadastro_municpios_id) AS uf
+									(SELECT uf FROM cadastro_municpios WHERE cadastro_municpios.id = account.cadastro_municpios_id) AS uf,
+									telefonecobranca
                                     from
                                     {{.owner}}.account
                                     inner join {{.owner}}.tb_crm_sincroniza ON id = pk
                                     AND tabela = 'CFR'
                                     WHERE
-                                    IFNULL(usuario, 'xx') <> 'CRM'`, map[string]interface{}{
+                                    IFNULL(usuario, 'xx') <> 'CRM'
+`, map[string]interface{}{
 		"owner": owner,
 	})
 
@@ -213,6 +215,7 @@ func (t CfrRepositoryDbErp) SelectCrm(owner string) ([]cfr.Account, error) {
 			&account.ContaSintetica,
 			&account.Cidade,
 			&account.Uf,
+			&account.TelefoneCobranca,
 		); err != nil {
 			log.Println(err.Error())
 			return nil, err
@@ -363,25 +366,53 @@ func (t CfrRepositoryDbErp) UpdateErp(account cfr.Account, owner string) error {
 
 	_, err := tx.ExecContext(ctx, queryString)
 
+	//Debug
+	//utils.LogFile("CRM/DEBUG", " updateCfr", "DEBUG ", helpers.String(account.Id), queryString)
+
 	if err != nil {
 		utils.LogFile("CRM/CFR", " update", "CRITICAL ", err.Error(), queryString)
 		tx.Rollback()
 		return err
 	}
 
-	//commit := tx.Commit()
-	//
-	//if commit != nil {
-	//	utils.LogFile("CRM/CFR", " update", "CRITICAL ", err.Error(), queryString)
-	//	return commit
-	//}
+	commit := tx.Commit()
 
-	fmt.Println(queryString)
+	if commit != nil {
+		utils.LogFile("CRM/CFR", " update", "CRITICAL ", err.Error(), "erro no commmit")
+		return commit
+	}
+
 	return nil
 
 }
 
-func (t CfrRepositoryDbErp) DeleteCrm(owner string, id string) error {
+func (t CfrRepositoryDbErp) DeleteCrm(owner string, id string, tipo string) error {
+	queryString := utils.Msg(`DELETE from {{.owner}}.tb_crm_sincroniza WHERE tabela = 'CFR' AND pk = '{{.pk}}' and tipo = '{{.tipo}}'`, map[string]interface{}{
+		"owner": owner,
+		"pk":    id,
+		"tipo":  tipo,
+	})
+	fmt.Println(queryString)
+
+	//Iniciando o contexto de transação
+	ctx := context.Background()
+	tx, _ := t.db.BeginTx(ctx, nil)
+
+	_, err := tx.ExecContext(ctx, queryString)
+
+	if err != nil {
+		utils.LogFile("CRM/CFR", " delete", "CRITICAL ", err.Error(), queryString)
+		tx.Rollback()
+		return err
+	}
+
+	commit := tx.Commit()
+
+	if commit != nil {
+		utils.LogFile("CRM/PRD", " delete", "CRITICAL ", commit.Error(), queryString)
+		return err
+	}
+
 	return nil
 }
 
@@ -495,7 +526,8 @@ func (t CfrRepositoryDbErp) InsertErp(account cfr.Account, owner string) error {
                                         subst_tribut_cofins ,
                                         origem ,
                                         conta_contabil_clie_1 ,
-                                        conta_contabil_s_clie_1 
+                                        conta_contabil_s_clie_1 ,
+										telefone_cobranca
 										)
 										VALUES(
 										'{{.nome_pessoa}}',
@@ -560,7 +592,8 @@ func (t CfrRepositoryDbErp) InsertErp(account cfr.Account, owner string) error {
 										'{{.subst_tribut_cofins}}',
 										'{{.origem}}',
 										'{{.conta_contabil_clie_1}}',
-										'{{.conta_contabil_s_clie_1}}'
+										'{{.conta_contabil_s_clie_1}}',
+										'{{.telefone_cobranca}}'
 										)
 									`, map[string]interface{}{
 		"nome_pessoa":             helpers.String(account.Name),
@@ -627,16 +660,13 @@ func (t CfrRepositoryDbErp) InsertErp(account cfr.Account, owner string) error {
 		"conta_contabil_clie_1":   helpers.String(account.ContaContabil),
 		"conta_contabil_s_clie_1": helpers.String(account.ContaSintetica),
 		"codigo_pessoa":           helpers.String(account.Ti9Codigo),
+		"telefone_cobranca":       helpers.String(account.TelefoneCobranca),
 	})
-
-	fmt.Println(sqlInsert)
 
 	_, insertErr := tx.ExecContext(ctx, sqlInsert)
 
-	//switch {
-	//case insertErr == pq.Error{}:
-	//	fmt.Println("Aqui o erro de duplicate ")
-	//}
+	//Debug
+	//utils.LogFile("CRM/DEBUG", " insertCfr", "CRITICAL ", helpers.String(account.Id), sqlInsert)
 
 	if insertErr != nil {
 		utils.LogFile("CRM/CFR", " insert", "CRITICAL ", insertErr.Error(), sqlInsert)
@@ -644,12 +674,12 @@ func (t CfrRepositoryDbErp) InsertErp(account cfr.Account, owner string) error {
 		return insertErr
 	}
 
-	//commit := tx.Commit()
-	//
-	//if commit != nil {
-	//	utils.LogFile("CRM/CFR", " update", "CRITICAL ", err.Error(), queryString)
-	//	return commit
-	//}
+	commit := tx.Commit()
+
+	if commit != nil {
+		utils.LogFile("CRM/CFR", " update", "CRITICAL ", commit.Error(), "erro de commit")
+		return commit
+	}
 
 	return nil
 }

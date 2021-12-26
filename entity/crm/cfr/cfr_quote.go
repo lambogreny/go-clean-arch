@@ -80,6 +80,7 @@ type Account struct {
 	ContaSintetica          sql.NullString
 	Cidade                  sql.NullString
 	Uf                      sql.NullString
+	TelefoneCobranca        sql.NullString
 }
 
 type Cfr struct {
