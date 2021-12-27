@@ -9,3 +9,7 @@ type CfrRepository interface {
 	DeleteCrm(owner string, id string, tipo string) error
 	InsertErp(account cfr.Account, owner string) error
 }
+
+type AccountRepository interface {
+	SelectErp() ([]cfr.Cfr, error)
+}

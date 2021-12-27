@@ -41,9 +41,10 @@ func NewRouter() *gin.Engine {
 	v1.GET("/crm/erp/prd", crmPrd.GetErp)
 
 	//Crm Services
-	v1.GET("/crm/erp/prd/service", crmPrd.CallPrdService)
-	v1.GET("/crm/erp/cfr/service", Cfr.CallCfrService)
-	v1.GET("/crm/erp/pedido/service", pedido.CallPedidoService)
+	v1.GET("/crm/erp/prd/service", crmPrd.CallPrdService)       //Leva os dados para a PRd
+	v1.GET("/crm/erp/cfr/service", Cfr.CallCfrService)          //Leva os dados para a CFR
+	v1.GET("/crm/erp/account/service", Cfr.CallAccountService)  //Leva os dados para a Account
+	v1.GET("/crm/erp/pedido/service", pedido.CallPedidoService) //Leva os dados para a CPV e IPV
 
 	return router
 }

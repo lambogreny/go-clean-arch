@@ -17,7 +17,7 @@ func CfrService(clientId string) error {
 	*Crm : Todas as funções que operam no banco do CRM
 	*Erp : Todas as funções que operam no banco do ERP
 	 */
-	log.Println("Início da transação do procedimento de integração com a CFR")
+	log.Println("Início da transação do procedimento que leva os dados do CRM para o ERP")
 
 	//Chama a função que retorna as duas conexões
 	dbCrmConn, dbErpConn, ownerCrm, connError := crm.ServicesDatabases(clientId)

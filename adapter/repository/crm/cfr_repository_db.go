@@ -683,3 +683,181 @@ func (t CfrRepositoryDbErp) InsertErp(account cfr.Account, owner string) error {
 
 	return nil
 }
+
+// ---------------------------------
+
+func (t CfrRepositoryDbErp) SelectErp() ([]cfr.Cfr, error) {
+
+	queryString := utils.Msg(`SELECT          
+							tipo,  
+							codigo_pessoa as id,                                   
+							nome_pessoa as name,
+							nome_pessoa as description,
+							nome_fantasia as nomefantasia,
+							natureza_pessoa as naturezapessoa,
+							cnpj_cpf as sic_code,
+							inscricao_estadual as inscricaoestadual,
+							sitfed AS sitfed,
+							siticms AS siticms,
+							sitipi AS sitipi,
+							endereco AS billing_address_street,
+							numeroend AS numeroend,
+							end_complemento AS endcomplemento,
+							bairro AS BAIRRO,
+							uf AS billing_address_state,
+							cep AS billing_address_postal_code,
+							pais AS billing_address_country,
+							telefone_1 AS telefone1,
+							telefone_2 AS telefone2,
+							contato,
+							email,
+							data_nascimento AS datanascimento,
+							emailnfe,
+							home_page AS website,
+							nosso_cliente AS nossocliente, -- não tem
+							'f' AS nosso_fornecedor,
+							'f' AS nosso_transportador,  -- não tem
+							categoria_cliente AS industry,
+							cond_pg_padrao_clie AS condpgpadraoclie,
+							docpadrao_cliente   AS docpadraocliente,
+							cobrpadrao_cliente  AS cobrpadraocliente,
+							portpadrao_cliente  AS portpadraocliente,
+							data_cad AS created_at,
+							zonafranca AS zonafranca,
+							inscricao_suframa,  -- não tem
+							vendedor1, -- não tem
+							comissao1_fat,-- não tem
+							transp_padr_clie, -- não tem
+							tipo_frete, -- não tem
+							endereco,
+							endereco_cobranca AS enderecocobranca,
+							numeroend_cobranca AS numeroendcobranca,
+							bairro_cobranca AS bairroCobranca,
+							cidade_cobranca AS cidade_cobranca,
+							uf_cobranca,
+							cep,
+							cep_cobranca,
+							usuario_inclusao,
+							data_hora_alteracao,
+							usuario_alteracao,
+							ende_latitude,
+							ende_longitude,
+							'' as TI9CODIGO,
+							'001' AS categoria_cliente,
+							'f' AS opt_simples,
+							't' AS contrib_icms,
+							'f' AS consumidor_final,
+							'f' AS ck_ver_vencto_lote,
+							0 AS qtde_min_vencto_lote,
+							'f' AS inss_ret,
+							'f' AS isento_icms,
+							'f' AS ret_piscofcsll,
+							'f' AS ret_iss,
+							'f' AS ret_iss_fonte,
+							'f' AS subst_tribut_icms,
+							'f' AS subst_tribut_pis,
+							'f' AS subst_tribut_cofins, 
+							status,
+							origem,
+							'' as conta_contabil,
+							'' as conta_sintetica,
+							cidade,
+							uf,
+							telefone_cobranca
+						from cfr
+						inner join tb_crm_sincroniza ON codigo_pessoa = pk AND tabela = 'CFR'`, map[string]interface{}{})
+
+	rows, err := t.db.Query(queryString)
+
+	if err != nil {
+		return nil, err
+	}
+
+	cfrs := []cfr.Cfr{}
+
+	for rows.Next() {
+		cfr := cfr.Cfr{}
+
+		if err := rows.Scan(&cfr.Tipo,
+			&cfr.Id,
+			&cfr.Name,
+			&cfr.Description,
+			&cfr.NomeFantasia,
+			&cfr.NaturezaPessoa,
+			&cfr.SicCode,
+			&cfr.InscricaoEstadual,
+			&cfr.SitFed,
+			&cfr.SitCms,
+			&cfr.SitIpi,
+			&cfr.BillingAddressCity,
+			&cfr.NumeroEnd,
+			&cfr.EndComplemento,
+			&cfr.Bairro,
+			&cfr.BillingAdressState,
+			&cfr.BillingAdressPostalCode,
+			&cfr.BillingAdressCountry,
+			&cfr.Telefone1,
+			&cfr.Telefone2,
+			&cfr.Contato,
+			&cfr.Email,
+			&cfr.DataNascimento,
+			&cfr.EmailNfe,
+			&cfr.WebSite,
+			&cfr.NossoCliente,
+			&cfr.NossoFornecedor,
+			&cfr.NossoTransportador,
+			&cfr.Industry,
+			&cfr.CondPgPadraoClie,
+			&cfr.DocPadraoCliente,
+			&cfr.CobrPadraoCliente,
+			&cfr.PortPadraoCliente,
+			&cfr.CreatedAt,
+			&cfr.ZonaFranca,
+			&cfr.InscricaoSuframa,
+			&cfr.Vendedor1,
+			&cfr.Comissao1Fat,
+			&cfr.TranspPadraoCliente,
+			&cfr.TipoFrete,
+			&cfr.Endereco,
+			&cfr.EnderecoCobranca,
+			&cfr.NumeroEndCobranca,
+			&cfr.BairroCobranca,
+			&cfr.CidadeCobranca,
+			&cfr.UfCobranca,
+			&cfr.Cep,
+			&cfr.CepCobranca,
+			&cfr.CreatedById,
+			&cfr.ModifiedAt,
+			&cfr.ModifiedById,
+			&cfr.EndeLatitude,
+			&cfr.EndeLongitude,
+			&cfr.Ti9Codigo,
+			&cfr.CategoriaCliente,
+			&cfr.OptSimples,
+			&cfr.ContribIcms,
+			&cfr.ConsumidorFinal,
+			&cfr.CkVerVenctoLote,
+			&cfr.QtdeMinVenctoLote,
+			&cfr.InssRet,
+			&cfr.IsentoIcms,
+			&cfr.RetPiscoFcsvll,
+			&cfr.RetIss,
+			&cfr.RetIssFonte,
+			&cfr.SubstTributIcms,
+			&cfr.SubstTributPis,
+			&cfr.SubstTributConfis,
+			&cfr.Status,
+			&cfr.Origem,
+			&cfr.ContaContabil,
+			&cfr.ContaSintetica,
+			&cfr.Cidade,
+			&cfr.Uf,
+			&cfr.TelefoneCobranca,
+		); err != nil {
+			log.Println(err.Error())
+			return nil, err
+		}
+		cfrs = append(cfrs, cfr)
+	}
+	return cfrs, nil
+}
