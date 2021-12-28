@@ -66,16 +66,26 @@ func AccountService(clientId string) error {
 					continue
 				default:
 					log.Println("Cai no erro default")
+					utils.LogDatabase(clientId, "CFR", "I", helpers.String(x.Id), true, IErr.Error())
 					return IErr
 				}
 			}
 
 		case "U":
-			UErr := AccountUpdate(usecaseCrm, usecaseErp, x, ownerCrm, helpers.ExtraInfo{Tipo: helpers.String(x.Tipo)})
+			UErr := AccountInsertWithCheck(usecaseCrm, usecaseErp, x, ownerCrm, helpers.ExtraInfo{Tipo: helpers.String(x.Tipo)})
 
 			if UErr != nil {
-				utils.LogDatabase(clientId, "CFR", "U", helpers.String(x.Id), true, UErr.Error())
-				return UErr
+				switch {
+				//Para casos de duplicate key, apenas loga e continua o loop
+				case strings.Contains(UErr.Error(), "duplicate key"):
+					log.Println("Cai no duplicate key")
+					utils.LogDatabase(clientId, "CFR", "I", helpers.String(x.Id), true, UErr.Error())
+					continue
+				default:
+					log.Println("Cai no erro default")
+					utils.LogDatabase(clientId, "CFR", "I", helpers.String(x.Id), true, UErr.Error())
+					return UErr
+				}
 			}
 		}
 
@@ -135,6 +145,7 @@ func AccountInsertWithCheck(usecaseCrm *cfr.ProcessAccount, usecaseErp *cfr.Proc
 	return nil
 }
 
+//Não será utilizado
 func AccountUpdate(usecaseCrm *cfr.ProcessAccount, usecaseErp *cfr.ProcessAccount, x cfr2.Cfr, crmOwner string, extra helpers.ExtraInfo) error {
 	log.Println("CASO : ACCOUNT UPDATE")
 
