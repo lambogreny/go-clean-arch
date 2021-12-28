@@ -3,10 +3,14 @@ package erp_crm
 import (
 	"fmt"
 	crmRepository "github.com/augusto/imersao5-esquenta-go/adapter/repository/crm"
+	cfr2 "github.com/augusto/imersao5-esquenta-go/entity/crm/cfr"
 	"github.com/augusto/imersao5-esquenta-go/services/crm"
 	"github.com/augusto/imersao5-esquenta-go/usecase/crm/cfr"
 	"github.com/augusto/imersao5-esquenta-go/utils"
+	"github.com/augusto/imersao5-esquenta-go/utils/helpers"
 	"log"
+	"strings"
+	"time"
 )
 
 func AccountService(clientId string) error {
@@ -17,7 +21,7 @@ func AccountService(clientId string) error {
 	log.Println("Início da transação do procedimento que leva dados de ERP para o CRM")
 
 	////Chama a função que retorna as duas conexões
-	dbCrmConn, dbErpConn, _, connError := crm.ServicesDatabases(clientId)
+	dbCrmConn, dbErpConn, ownerCrm, connError := crm.ServicesDatabases(clientId)
 
 	if connError != nil {
 		return connError
@@ -46,40 +50,104 @@ func AccountService(clientId string) error {
 	fmt.Println("Dados de retorno : ", data)
 
 	//// ----------------------------------------------------------- Percorrendo as linhas e definindo as ações ------------------------------------------------------------//
-	//
-	//for i, x := range data {
-	//	log.Println("Registro : ", i, " // id : ", x.Id)
-	//	switch helpers.String(x.Tipo) {
-	//	case "I":
-	//		IErr := CfrInsertWithCheck(usecaseCrm, usecaseErp, x, ownerCrm, helpers.ExtraInfo{Tipo: helpers.String(x.Tipo)})
-	//
-	//		if IErr != nil {
-	//			switch {
-	//			//Para casos de duplicate key, apenas loga e continua o loop
-	//			case strings.Contains(IErr.Error(), "duplicate key"):
-	//				log.Println("Cai no duplicate key")
-	//				utils.LogDatabase(clientId, "CFR", "I", helpers.String(x.Id), true, IErr.Error())
-	//				continue
-	//			default:
-	//				log.Println("Cai no erro default")
-	//				return IErr
-	//			}
-	//		}
-	//
-	//	case "U":
-	//		UErr := CfrUpdate(usecaseCrm, usecaseErp, x, ownerCrm, helpers.ExtraInfo{Tipo: helpers.String(x.Tipo)})
-	//
-	//		if UErr != nil {
-	//			utils.LogDatabase(clientId, "CFR", "U", helpers.String(x.Id), true, UErr.Error())
-	//			return UErr
-	//		}
-	//	}
-	//
-	//	utils.LogDatabase(clientId, "CFR", helpers.String(x.Tipo), helpers.String(x.Id), false, "")
-	//
-	//	//Para não derrubar o banco
-	//	time.Sleep(1 * time.Second)
-	//
-	//}
+
+	for i, x := range data {
+		log.Println("Registro : ", i, " // id : ", x.Id)
+		switch helpers.String(x.Tipo) {
+		case "I":
+			IErr := AccountInsertWithCheck(usecaseCrm, usecaseErp, x, ownerCrm, helpers.ExtraInfo{Tipo: helpers.String(x.Tipo)})
+
+			if IErr != nil {
+				switch {
+				//Para casos de duplicate key, apenas loga e continua o loop
+				case strings.Contains(IErr.Error(), "duplicate key"):
+					log.Println("Cai no duplicate key")
+					utils.LogDatabase(clientId, "CFR", "I", helpers.String(x.Id), true, IErr.Error())
+					continue
+				default:
+					log.Println("Cai no erro default")
+					return IErr
+				}
+			}
+
+		case "U":
+			UErr := AccountUpdate(usecaseCrm, usecaseErp, x, ownerCrm, helpers.ExtraInfo{Tipo: helpers.String(x.Tipo)})
+
+			if UErr != nil {
+				utils.LogDatabase(clientId, "CFR", "U", helpers.String(x.Id), true, UErr.Error())
+				return UErr
+			}
+		}
+
+		utils.LogDatabase(clientId, "CFR", helpers.String(x.Tipo), helpers.String(x.Id), false, "")
+
+		//Para não derrubar o banco
+		time.Sleep(1 * time.Second)
+
+	}
+	return nil
+}
+
+func AccountInsertWithCheck(usecaseCrm *cfr.ProcessAccount, usecaseErp *cfr.ProcessAccount, x cfr2.Cfr, crmOwner string, extra helpers.ExtraInfo) error {
+	log.Println("CASO : ACCOUNT INSERT WITH CHECK")
+
+	checkUpdate, err := usecaseCrm.UseCaseCheckUpdateCrm(helpers.String(x.Id), crmOwner)
+
+	if err != nil {
+		log.Println("Erro de checagem")
+		return err
+	}
+
+	switch checkUpdate {
+	case true:
+		log.Println("Chequei o registro e cai no Update")
+		UpdateErr := usecaseCrm.UseCaseUpdate(x, crmOwner)
+
+		if UpdateErr != nil {
+			return UpdateErr
+		}
+
+		deleteErr := usecaseErp.UseCaseDelete(helpers.String(x.Id), helpers.String(x.Tipo))
+
+		if deleteErr != nil {
+			return deleteErr
+		}
+	case false:
+		log.Println("Chequei o registro e cai no insert!")
+
+		//#TODO Fazendo o insert
+		InsertErr := usecaseCrm.UseCaseInsert(x, crmOwner)
+
+		if InsertErr != nil {
+			return InsertErr
+		}
+
+		deleteErr := usecaseErp.UseCaseDelete(helpers.String(x.Id), helpers.String(x.Tipo))
+
+		if deleteErr != nil {
+			return deleteErr
+		}
+
+	}
+
+	log.Println("O resultado do checkUpdate é : ", checkUpdate)
+
+	return nil
+}
+
+func AccountUpdate(usecaseCrm *cfr.ProcessAccount, usecaseErp *cfr.ProcessAccount, x cfr2.Cfr, crmOwner string, extra helpers.ExtraInfo) error {
+	log.Println("CASO : ACCOUNT UPDATE")
+
+	UpdateErr := usecaseCrm.UseCaseUpdate(x, crmOwner)
+
+	if UpdateErr != nil {
+		return UpdateErr
+	}
+	deleteErr := usecaseErp.UseCaseDelete(helpers.String(x.Id), helpers.String(x.Tipo))
+
+	if deleteErr != nil {
+		return deleteErr
+	}
+
 	return nil
 }

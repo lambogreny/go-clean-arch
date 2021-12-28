@@ -861,3 +861,344 @@ func (t CfrRepositoryDbErp) SelectErp() ([]cfr.Cfr, error) {
 	}
 	return cfrs, nil
 }
+
+func (t CfrRepositoryDbErp) CheckUpdateCrm(id string, owner string) (bool, error) {
+	queryString := fmt.Sprintf(`SELECT count(*) from %s.account where id= '%s'`, owner, id)
+
+	rows, err := t.db.Query(queryString)
+
+	if err != nil {
+		return false, err
+	}
+
+	var count int
+
+	for rows.Next() {
+		if err := rows.Scan(&count); err != nil {
+			utils.LogFile("CRM/CFR", " check", "CRITICAL ", err.Error(), queryString)
+			return false, err
+		}
+	}
+
+	if count == 0 {
+		return false, nil
+	}
+	return true, nil
+}
+
+func (t CfrRepositoryDbErp) UpdateCrm(cfr cfr.Cfr, owner string) error {
+	queryString := utils.Msg(`UPDATE {{.owner}}.account SET
+											name = '{{.name}}',
+											description = '{{.description}}',
+											nomefantasia = '{{.nomefantasia}}',
+											naturezapessoa = '{{.naturezapessoa}}',
+											sic_code = '{{.sic_code}}',
+											inscricaoestadual= '{{.inscricaoestadual}}',
+											sitfed= '{{.sitfed}}',
+											siticms = '{{.siticms}}',
+											sitipi = '{{.sitipi}}',
+											billing_address_street = '{{.billing_address_street}}',
+											numeroend = '{{.numeroend}}',
+											endcomplemento= '{{.endcomplemento}}',
+											bairro = '{{.bairro}}',
+											billing_address_city = '{{.billing_address_city}}',
+											billing_address_state = '{{.billing_address_state}}',
+											billing_address_postal_code = '{{.billing_address_postal_code}}',
+											billing_address_country = '{{.billing_address_country}}',
+											telefone1 = '{{.telefone1}}',
+											telefone2= '{{.telefone2}}',
+											contato = '{{.contato}}',
+											email = '{{.email}}',
+											emailnfe = '{{.emailnfe}}',
+											website = '{{.website}}',
+											nossocliente = '{{.nossocliente}}',
+											industry = '{{.industry}}',
+											condpgpadraoclie = '{{.condpgpadraoclie}}',
+											docpadraocliente = '{{.docpadraocliente}}',
+											cobrpadraocliente = '{{.cobrpadraocliente}}',
+											portpadraocliente = '{{.portpadraocliente}}',
+											status = '{{.status}}',
+											created_at = '{{.created_at}}',
+											zonafranca = '{{.zonafranca}}',
+											inscricaosuframa = '{{.inscricaosuframa}}',
+											vendedor1 = '{{.vendedor1}}',
+											comissao1fat = '{{.comissao1fat}}',
+											transppadrclie = '{{.transppadrclie}}',
+											tipofrete = '{{.tipofrete}}',
+											enderecocobranca = '{{.enderecocobranca}}',
+											bairrocobranca= '{{.bairrocobranca}}',
+											cidadecobranca = '{{.cidadecobranca}}',
+											ufcobranca = '{{.ufcobranca}}',
+											cepcobranca = '{{.cepcobranca}}',
+											created_by_id = '{{.created_by_id}}',
+											modified_at = '{{.modified_at}}',
+											modified_by_id = '{{.modified_by_id}}',
+											endelatitude = '{{.endelatitude}}',
+											endelongitude = '{{.endelongitude}}',
+											endereco = '{{.endereco}}',
+											bairro = '{{.bairro}}',
+											cep = '{{.cep}}'
+                                        WHERE TI9CODIGO = '{{.TI9CODIGO}}' `, map[string]interface{}{
+		"owner":                       owner,
+		"name":                        helpers.String(cfr.Name),
+		"description":                 helpers.String(cfr.Description),
+		"nomefantasia":                helpers.String(cfr.NomeFantasia),
+		"naturezapessoa":              helpers.String(cfr.NaturezaPessoa),
+		"cnpj_cpf":                    helpers.String(cfr.SicCode),
+		"inscricaoestadual":           helpers.String(cfr.InscricaoEstadual),
+		"sitfed":                      helpers.String(cfr.SitFed),
+		"siticms":                     helpers.String(cfr.SitCms),
+		"sitipi":                      helpers.String(cfr.SitIpi),
+		"billing_address_street":      helpers.String(cfr.Endereco),
+		"numeroend":                   helpers.String(cfr.NumeroEnd),
+		"endcomplemento":              helpers.String(cfr.EndComplemento),
+		"bairro":                      helpers.String(cfr.Bairro),
+		"billing_address_city":        helpers.String(cfr.Cidade),
+		"billing_address_state":       helpers.String(cfr.Uf),
+		"billing_address_postal_code": helpers.String(cfr.Cep),
+		"billing_address_country":     helpers.String(cfr.BillingAdressCountry),
+		"telefone1":                   helpers.String(cfr.Telefone1),
+		"telefone2":                   helpers.String(cfr.Telefone2),
+		"contato":                     helpers.String(cfr.Contato),
+		"email":                       helpers.String(cfr.Email),
+		"emailnfe":                    helpers.String(cfr.EmailNfe),
+		"website":                     helpers.String(cfr.WebSite),
+		"nossocliente":                helpers.StringBoolean(cfr.NossoCliente),
+		"industry":                    helpers.StringBoolean(cfr.Industry),
+		"condpgpadraoclie":            helpers.String(cfr.CondPgPadraoClie),
+		"docpadraocliente":            helpers.String(cfr.DocPadraoCliente),
+		"cobrpadraocliente":           helpers.String(cfr.CobrPadraoCliente),
+		"portpadraocliente":           helpers.String(cfr.PortPadraoCliente),
+		"status":                      helpers.String(cfr.Status),
+		"created_at":                  helpers.String(cfr.CreatedAt),
+		"zonafranca":                  helpers.StringBoolean(cfr.ZonaFranca),
+		"inscricaosuframa":            helpers.String(cfr.InscricaoSuframa),
+		"vendedor1":                   helpers.String(cfr.Vendedor1),
+		"comissao1fat":                helpers.Float64(cfr.Comissao1Fat),
+		"transppadrclie":              helpers.String(cfr.TranspPadraoCliente),
+		"tipofrete":                   helpers.String(cfr.TipoFrete),
+		"enderecocobranca":            helpers.String(cfr.EnderecoCobranca),
+		"bairrocobranca":              helpers.String(cfr.BairroCobranca),
+		"cidadecobranca":              helpers.String(cfr.CidadeCobranca),
+		"ufcobranca":                  helpers.String(cfr.UfCobranca),
+		"cepcobranca":                 helpers.String(cfr.CepCobranca),
+		"created_by_id":               helpers.String(cfr.CreatedById),
+		"modified_at":                 helpers.String(cfr.ModifiedAt),
+		"modified_by_id":              helpers.String(cfr.ModifiedById),
+		"endelatitude":                helpers.Float64(cfr.EndeLatitude),
+		"endelongitude":               helpers.Float64(cfr.EndeLongitude),
+		//"categoria_cliente":           helpers.String(cfr.CategoriaCliente),
+		//"opt_simples":                 helpers.StringBoolean(cfr.OptSimples),
+		//"contrib_icms":                helpers.StringBoolean(cfr.ContribIcms),
+		//"consumidor_final":            helpers.StringBoolean(cfr.ConsumidorFinal),
+		//"ck_ver_vencto_lote":          helpers.StringBoolean(cfr.CkVerVenctoLote),
+		//"qtde_min_vencto_lote":        helpers.String(cfr.QtdeMinVenctoLote),
+		//"inss_ret":                    helpers.StringBoolean(cfr.InssRet),
+		//"isento_icms":                 helpers.StringBoolean(cfr.IsentoIcms),
+		//"ret_piscofcsll":              helpers.StringBoolean(cfr.RetPiscoFcsvll),
+		//"ret_iss":                     helpers.StringBoolean(cfr.RetIss),
+		//"ret_iss_fonte":               helpers.StringBoolean(cfr.RetIssFonte),
+		//"subst_tribut_icms":           helpers.StringBoolean(cfr.SubstTributIcms),
+		//"subst_tribut_pis":            helpers.StringBoolean(cfr.SubstTributPis),
+		//"subst_tribut_cofins":         helpers.StringBoolean(cfr.SubstTributConfis),
+		//"origem":                      helpers.String(cfr.Origem),
+		//"conta_contabil_clie_1":   helpers.String(cfr.ContaContabil),
+		//"conta_contabil_s_clie_1": helpers.String(cfr.ContaSintetica),
+		"TI9CODIGO": helpers.String(cfr.Id),
+		"endereco":  helpers.String(cfr.Endereco),
+		"cidade":    helpers.String(cfr.Cidade),
+		"cep":       helpers.String(cfr.Cep),
+	})
+
+	//Iniciando uma transação
+	ctx := context.Background()
+	tx, _ := t.db.BeginTx(ctx, nil)
+
+	_, err := tx.ExecContext(ctx, queryString)
+
+	////Debug
+	//utils.LogFile("CRM/DEBUG", " updateCfr", "DEBUG ", helpers.String(account.Id), queryString)
+
+	if err != nil {
+		utils.LogFile("CRM/CFR", " update", "CRITICAL ", err.Error(), queryString)
+		tx.Rollback()
+		return err
+	}
+
+	commit := tx.Commit()
+
+	if commit != nil {
+		utils.LogFile("CRM/CFR", " update", "CRITICAL ", err.Error(), "erro no commmit")
+		return commit
+	}
+
+	return nil
+}
+
+func (t CfrRepositoryDbErp) DeleteErp(id string, tipo string) error {
+	queryString := utils.Msg(`DELETE from tb_crm_sincroniza WHERE tabela = 'CFR' AND pk = '{{.pk}}' and tipo = '{{.tipo}}'`, map[string]interface{}{
+		"pk":   id,
+		"tipo": tipo,
+	})
+	fmt.Println(queryString)
+
+	//Iniciando o contexto de transação
+	ctx := context.Background()
+	tx, _ := t.db.BeginTx(ctx, nil)
+
+	_, err := tx.ExecContext(ctx, queryString)
+
+	if err != nil {
+		utils.LogFile("CRM/CFR", " delete", "CRITICAL ", err.Error(), queryString)
+		tx.Rollback()
+		return err
+	}
+
+	commit := tx.Commit()
+
+	if commit != nil {
+		utils.LogFile("CRM/CFR", " delete", "CRITICAL ", commit.Error(), queryString)
+		return err
+	}
+
+	return nil
+}
+
+func (t CfrRepositoryDbErp) InsertCrm(cfr cfr.Cfr, owner string) error {
+	queryString := utils.Msg(`INSERT INTO {{.owner}}.account (
+                                        nome_pessoa ,
+                                        nome_fantasia ,
+                                        natureza_pessoa ,
+                                        cnpj_cpf ,
+                                        inscricao_estadual ,
+                                        sitfed ,
+                                        siticms ,
+                                        sitipi ,
+                                        endereco ,
+                                        numeroend ,
+                                        end_complemento ,
+                                        bairro ,
+                                        cidade ,
+                                        uf ,
+                                        cep ,
+                                        pais ,
+                                        telefone_1 ,
+                                        telefone_2 ,
+                                        contato ,
+                                        email ,
+                                        emailnfe ,
+                                        home_page ,
+                                        nosso_cliente ,
+                                        cond_pg_padrao_clie ,
+                                        docpadrao_cliente ,
+                                        cobrpadrao_cliente ,
+                                        portpadrao_cliente ,
+                                        status ,
+                                        data_cad ,
+                                        zonafranca ,
+                                        inscricao_suframa ,
+                                        vendedor1 ,
+                                        comissao1_fat ,
+                                        transp_padr_clie ,
+                                        tipo_frete ,
+                                        endereco_cobranca ,
+                                        bairro_cobranca ,
+                                        cidade_cobranca ,
+                                        uf_cobranca ,
+                                        cep_cobranca ,
+                                        data_hora_inclusao ,
+                                        usuario_inclusao ,
+                                        data_hora_alteracao ,
+                                        usuario_alteracao ,
+                                        ende_latitude ,
+                                        ende_longitude ,
+                                        categoria_cliente ,
+                                        opt_simples ,
+                                        contrib_icms ,
+                                        consumidor_final ,
+                                        ck_ver_vencto_lote ,
+                                        qtde_min_vencto_lote ,
+                                        inss_ret ,
+                                        isento_icms ,
+                                        ret_piscofcsll ,
+                                        ret_iss ,
+                                        ret_iss_fonte ,
+                                        subst_tribut_icms ,
+                                        subst_tribut_pis ,
+                                        subst_tribut_cofins ,
+                                        origem ,
+                                        conta_contabil_clie_1 ,
+                                        conta_contabil_s_clie_1 ,
+										telefone_cobranca
+										)
+										VALUES(
+										'{{.nome_pessoa}}',
+										'{{.nome_fantasia}}',
+										'{{.natureza_pessoa}}',
+										'{{.cnpj_cpf}}',
+										'{{.inscricao_estadual}}',
+										'{{.sitfed}}',
+										'{{.siticms}}',
+										'{{.sitipi}}',
+										'{{.endereco}}',
+										'{{.numeroend}}',
+										'{{.end_complemento}}',
+										'{{.bairro}}',
+										'{{.cidade}}',
+										'{{.uf}}',
+										'{{.cep}}',
+										'{{.pais}}',
+										'{{.telefone_1}}',
+										'{{.telefone_2}}',
+										'{{.contato}}',
+										'{{.email}}',
+										'{{.emailnfe}}',
+										'{{.home_page}}',
+										'{{.nosso_cliente}}',
+										'{{.cond_pg_padrao_clie}}',
+										'{{.docpadrao_cliente}}',
+										'{{.cobrpadrao_cliente}}',
+										'{{.portpadrao_cliente}}',
+										'{{.status}}',
+										'{{.data_cad}}',
+										'{{.zonafranca}}',
+										'{{.inscricao_suframa}}',
+										'{{.vendedor1}}',
+										'{{.comissao1_fat}}',
+										'{{.transp_padr_clie}}',
+										'{{.tipo_frete}}',
+										'{{.endereco_cobranca}}',
+										'{{.bairro_cobranca}}',
+										'{{.cidade_cobranca}}',
+										'{{.uf_cobranca}}',
+										'{{.cep_cobranca}}',
+										'{{.data_hora_inclusao}}',
+										'{{.usuario_inclusao}}',
+										'{{.data_hora_alteracao}}',
+										'{{.usuario_alteracao}}',
+										'{{.ende_latitude}}',
+										'{{.ende_longitude}}',
+										'{{.categoria_cliente}}',
+										'{{.opt_simples}}',
+										'{{.contrib_icms}}',
+										'{{.consumidor_final}}',
+										'{{.ck_ver_vencto_lote}}',
+										'{{.qtde_min_vencto_lote}}',
+										'{{.inss_ret}}',
+										'{{.isento_icms}}',
+										'{{.ret_piscofcsll}}',
+										'{{.ret_iss}}',
+										'{{.ret_iss_fonte}}',
+										'{{.subst_tribut_icms}}',
+										'{{.subst_tribut_pis}}',
+										'{{.subst_tribut_cofins}}',
+										'{{.origem}}',
+										'{{.conta_contabil_clie_1}}',
+										'{{.conta_contabil_s_clie_1}}',
+										'{{.telefone_cobranca}}'
+										)`, map[string]interface{}{
+		"owner": owner,
+	})
+	fmt.Println(queryString)
+	return nil
+}

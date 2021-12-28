@@ -12,4 +12,8 @@ type CfrRepository interface {
 
 type AccountRepository interface {
 	SelectErp() ([]cfr.Cfr, error)
+	CheckUpdateCrm(id string, owner string) (bool, error)
+	UpdateCrm(cfr cfr.Cfr, owner string) error
+	DeleteErp(id string, tipo string) error
+	InsertCrm(cfr cfr.Cfr, owner string) error
 }
