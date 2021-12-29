@@ -1,6 +1,7 @@
 package erp_crm
 
 import (
+	"fmt"
 	crmRepository "github.com/augusto/imersao5-esquenta-go/adapter/repository/crm"
 	cfr2 "github.com/augusto/imersao5-esquenta-go/entity/crm/cfr"
 	"github.com/augusto/imersao5-esquenta-go/services/crm"
@@ -30,9 +31,6 @@ func CfrService(clientId string) error {
 	repoCrm := crmRepository.NewCfrRepositoryDbErp(dbCrmConn)
 	repoErp := crmRepository.NewCfrRepositoryDbErp(dbErpConn)
 
-	//repoErp := crmRepository.NewCfrRepositoryDbErp(dbErpConn)
-	//repoCrm := crmRepository.NewCfrRepositoryDbErp(dbCrmConn)
-
 	usecaseCrm := cfr.NewProcessCfr(repoCrm)
 	usecaseErp := cfr.NewProcessCfr(repoErp)
 
@@ -42,7 +40,7 @@ func CfrService(clientId string) error {
 	if err != nil {
 		return err
 	}
-	//fmt.Println(data)
+	fmt.Println("Dados de retorno : ", data)
 
 	// ----------------------------------------------------------- Percorrendo as linhas e definindo as ações ------------------------------------------------------------//
 
@@ -66,11 +64,19 @@ func CfrService(clientId string) error {
 			}
 
 		case "U":
-			UErr := CfrUpdate(usecaseCrm, usecaseErp, x, ownerCrm, helpers.ExtraInfo{Tipo: helpers.String(x.Tipo)})
+			UErr := CfrInsertWithCheck(usecaseCrm, usecaseErp, x, ownerCrm, helpers.ExtraInfo{Tipo: helpers.String(x.Tipo)})
 
 			if UErr != nil {
-				utils.LogDatabase(clientId, "CFR", "U", helpers.String(x.Id), true, UErr.Error())
-				return UErr
+				switch {
+				//Para casos de duplicate key, apenas loga e continua o loop
+				case strings.Contains(UErr.Error(), "duplicate key"):
+					log.Println("Cai no duplicate key")
+					utils.LogDatabase(clientId, "CFR", "I", helpers.String(x.Id), true, UErr.Error())
+					continue
+				default:
+					log.Println("Cai no erro default")
+					return UErr
+				}
 			}
 		}
 
@@ -123,6 +129,7 @@ func CfrInsertWithCheck(usecaseCrm *cfr.ProcessCfr, usecaseErp *cfr.ProcessCfr, 
 	return nil
 }
 
+//Não está sendo utilizado
 func CfrUpdate(usecaseCrm *cfr.ProcessCfr, usecaseErp *cfr.ProcessCfr, x cfr2.Account, crmOwner string, extra helpers.ExtraInfo) error {
 	log.Println("CASO : CFR UPDATE")
 

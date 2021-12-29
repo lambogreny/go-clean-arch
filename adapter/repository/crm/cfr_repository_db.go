@@ -24,6 +24,7 @@ func (t CfrRepositoryDbErp) CheckUpdateErp(id string) (bool, error) {
 	rows, err := t.db.Query(queryString)
 
 	if err != nil {
+		utils.LogDatabaseDetails("CFR", id, queryString, err.Error(), "")
 		return false, err
 	}
 
@@ -133,6 +134,7 @@ func (t CfrRepositoryDbErp) SelectCrm(owner string) ([]cfr.Account, error) {
 	rows, err := t.db.Query(queryString)
 
 	if err != nil {
+		utils.LogDatabaseDetails("CFR", "SELECT", queryString, err.Error(), "")
 		return nil, err
 	}
 
@@ -370,7 +372,8 @@ func (t CfrRepositoryDbErp) UpdateErp(account cfr.Account, owner string) error {
 	//utils.LogFile("CRM/DEBUG", " updateCfr", "DEBUG ", helpers.String(account.Id), queryString)
 
 	if err != nil {
-		utils.LogFile("CRM/CFR", " update", "CRITICAL ", err.Error(), queryString)
+		//utils.LogFile("CRM/CFR", " update", "CRITICAL ", err.Error(), queryString)
+		utils.LogDatabaseDetails("CFR", helpers.String(account.Id), queryString, err.Error(), "")
 		tx.Rollback()
 		return err
 	}
@@ -378,7 +381,8 @@ func (t CfrRepositoryDbErp) UpdateErp(account cfr.Account, owner string) error {
 	commit := tx.Commit()
 
 	if commit != nil {
-		utils.LogFile("CRM/CFR", " update", "CRITICAL ", err.Error(), "erro no commmit")
+		//utils.LogFile("CRM/CFR", " update", "CRITICAL ", err.Error(), "erro no commmit")
+		utils.LogDatabaseDetails("CFR", helpers.String(account.Id), queryString, commit.Error(), "")
 		return commit
 	}
 
@@ -401,7 +405,8 @@ func (t CfrRepositoryDbErp) DeleteCrm(owner string, id string, tipo string) erro
 	_, err := tx.ExecContext(ctx, queryString)
 
 	if err != nil {
-		utils.LogFile("CRM/CFR", " delete", "CRITICAL ", err.Error(), queryString)
+		//utils.LogFile("CRM/CFR", " delete", "CRITICAL ", err.Error(), queryString)
+		utils.LogDatabaseDetails("CFR", id, queryString, err.Error(), "")
 		tx.Rollback()
 		return err
 	}
@@ -409,7 +414,8 @@ func (t CfrRepositoryDbErp) DeleteCrm(owner string, id string, tipo string) erro
 	commit := tx.Commit()
 
 	if commit != nil {
-		utils.LogFile("CRM/PRD", " delete", "CRITICAL ", commit.Error(), queryString)
+		//utils.LogFile("CRM/PRD", " delete", "CRITICAL ", commit.Error(), queryString)
+		utils.LogDatabaseDetails("CFR", id, queryString, err.Error(), "")
 		return err
 	}
 
@@ -439,8 +445,10 @@ func (t CfrRepositoryDbErp) InsertErp(account cfr.Account, owner string) error {
 	switch {
 	case err == sql.ErrNoRows:
 		fmt.Errorf("Valores da sys sequencial não encontrados!")
+		utils.LogDatabaseDetails("ACCOUNT", helpers.String(account.Id), sqlGetSysSequencial, err.Error(), "")
 		return err
 	case err != nil:
+		utils.LogDatabaseDetails("ACCOUNT", helpers.String(account.Id), sqlGetSysSequencial, err.Error(), "")
 		return err
 	}
 
@@ -456,7 +464,8 @@ func (t CfrRepositoryDbErp) InsertErp(account cfr.Account, owner string) error {
 	_, updateErr := tx.ExecContext(ctx, sqlUpdateSysSequencial)
 
 	if updateErr != nil {
-		utils.LogFile("CRM/CFR", " insert", "CRITICAL ", updateErr.Error(), sqlUpdateSysSequencial)
+		//utils.LogFile("CRM/CFR", " insert", "CRITICAL ", updateErr.Error(), sqlUpdateSysSequencial)
+		utils.LogDatabaseDetails("ACCOUNT", helpers.String(account.Id), sqlUpdateSysSequencial, updateErr.Error(), "")
 		tx.Rollback()
 		return updateErr
 	}
@@ -669,7 +678,8 @@ func (t CfrRepositoryDbErp) InsertErp(account cfr.Account, owner string) error {
 	//utils.LogFile("CRM/DEBUG", " insertCfr", "CRITICAL ", helpers.String(account.Id), sqlInsert)
 
 	if insertErr != nil {
-		utils.LogFile("CRM/CFR", " insert", "CRITICAL ", insertErr.Error(), sqlInsert)
+		//utils.LogFile("CRM/CFR", " insert", "CRITICAL ", insertErr.Error(), sqlInsert)
+		utils.LogDatabaseDetails("ACCOUNT", helpers.String(account.Id), sqlInsert, insertErr.Error(), "")
 		tx.Rollback()
 		return insertErr
 	}
@@ -677,7 +687,8 @@ func (t CfrRepositoryDbErp) InsertErp(account cfr.Account, owner string) error {
 	commit := tx.Commit()
 
 	if commit != nil {
-		utils.LogFile("CRM/CFR", " update", "CRITICAL ", commit.Error(), "erro de commit")
+		//utils.LogFile("CRM/CFR", " update", "CRITICAL ", commit.Error(), "erro de commit")
+		utils.LogDatabaseDetails("ACCOUNT", helpers.String(account.Id), "COMMIT", commit.Error(), "")
 		return commit
 	}
 
@@ -856,6 +867,7 @@ func (t CfrRepositoryDbErp) SelectErp() ([]cfr.Cfr, error) {
 			&cfr.TelefoneCobranca,
 		); err != nil {
 			log.Println(err.Error())
+			utils.LogDatabaseDetails("ACCOUNT", helpers.String(cfr.Id), queryString, err.Error(), "")
 			return nil, err
 		}
 		cfrs = append(cfrs, cfr)
@@ -869,6 +881,7 @@ func (t CfrRepositoryDbErp) CheckUpdateCrm(id string, owner string) (bool, error
 	rows, err := t.db.Query(queryString)
 
 	if err != nil {
+		utils.LogDatabaseDetails("ACCOUNT", id, queryString, err.Error(), "")
 		return false, err
 	}
 
@@ -1021,7 +1034,8 @@ func (t CfrRepositoryDbErp) UpdateCrm(cfr cfr.Cfr, owner string) error {
 	//utils.LogFile("CRM/DEBUG", " updateCfr", "DEBUG ", helpers.String(account.Id), queryString)
 
 	if err != nil {
-		utils.LogFile("CRM/CFR", " update", "CRITICAL ", err.Error(), queryString)
+		//utils.LogFile("CRM/CFR", " update", "CRITICAL ", err.Error(), queryString)
+		utils.LogDatabaseDetails("ACCOUNT", helpers.String(cfr.Id), queryString, err.Error(), "")
 		tx.Rollback()
 		return err
 	}
@@ -1050,7 +1064,8 @@ func (t CfrRepositoryDbErp) DeleteErp(id string, tipo string) error {
 	_, err := tx.ExecContext(ctx, queryString)
 
 	if err != nil {
-		utils.LogFile("CRM/CFR", " delete", "CRITICAL ", err.Error(), queryString)
+		//utils.LogFile("CRM/CFR", " delete", "CRITICAL ", err.Error(), queryString)
+		utils.LogDatabaseDetails("ACCOUNT", id, queryString, err.Error(), "")
 		tx.Rollback()
 		return err
 	}
@@ -1058,7 +1073,8 @@ func (t CfrRepositoryDbErp) DeleteErp(id string, tipo string) error {
 	commit := tx.Commit()
 
 	if commit != nil {
-		utils.LogFile("CRM/CFR", " delete", "CRITICAL ", commit.Error(), queryString)
+		//utils.LogFile("CRM/CFR", " delete", "CRITICAL ", commit.Error(), queryString)
+		utils.LogDatabaseDetails("ACCOUNT", id, queryString, commit.Error(), "")
 		return err
 	}
 
@@ -1254,7 +1270,8 @@ func (t CfrRepositoryDbErp) InsertCrm(cfr cfr.Cfr, owner string) error {
 	_, err := tx.ExecContext(ctx, queryString)
 
 	if err != nil {
-		utils.LogFile("CRM/CFR", " insert", "CRITICAL ", err.Error(), queryString)
+		//utils.LogFile("CRM/CFR", " insert", "CRITICAL ", err.Error(), queryString)
+		utils.LogDatabaseDetails("ACCOUNT", helpers.String(cfr.Id), queryString, err.Error(), "")
 		tx.Rollback()
 		return err
 	}
@@ -1263,13 +1280,11 @@ func (t CfrRepositoryDbErp) InsertCrm(cfr cfr.Cfr, owner string) error {
 	//rowsAffected, _ := r.RowsAffected()
 	//fmt.Println("Linhas afetadas : ", rowsAffected)
 
-	////Debug
-	utils.LogFile("CRM/DEBUG", " updateCfr", "DEBUG ", helpers.String(cfr.Id), queryString)
-
 	commit := tx.Commit()
 
 	if commit != nil {
-		utils.LogFile("CRM/CFR", " insert", "CRITICAL ", err.Error(), "erro no commmit")
+		//utils.LogFile("CRM/CFR", " insert", "CRITICAL ", err.Error(), "erro no commmit")
+		utils.LogDatabaseDetails("ACCOUNT", helpers.String(cfr.Id), "COMMIT", err.Error(), "")
 		return commit
 	}
 

@@ -23,14 +23,9 @@ func LogDatabase(clientId string, tabela string, tipo string, pk string, errCase
 
 	myJson := string(file)
 
-	//client := gjson.Get(myJson, "logs") //sqlite
 	client := gjson.Get(myJson, "pgLogs")
 
-	//Banco sqlite
-	//dbLog, dbConnError := sql.Open(client.Get("database.Dialect").String(), client.Get("database.dataSourceName").String())
-
 	var connString string = fmt.Sprintf("user=%s dbname=%s password=%s host=%s port=%s sslmode=disable", client.Get("database.Username"), client.Get("database.Dbname"), client.Get("database.Passoword"), client.Get("database.Host"), client.Get("database.Port"))
-	//dbLog, dbConnError := sql.Open(client.Get("database.Dialect").String(), connString)
 	dbLog, dbConnError := sql.Open("postgres", connString)
 
 	if dbConnError != nil {
@@ -45,11 +40,48 @@ func LogDatabase(clientId string, tabela string, tipo string, pk string, errCase
 
 	//fmt.Println(queryString)
 
-	r, queryError := dbLog.Exec(queryString)
+	_, queryError := dbLog.Exec(queryString)
 	if queryError != nil {
 		log.Println(queryError)
 		panic("Could not execute log query")
 	}
-	fmt.Println(r.RowsAffected())
+
+}
+
+func LogDatabaseDetails(tabela string, pk string, queryString string, dbResponse string, responseType string) {
+
+	absPath, _ := filepath.Abs("./") //Root do projeto
+	filePath := absPath + "/data/crm/relationDatabases.json"
+
+	file, err := ioutil.ReadFile(filePath)
+
+	if err != nil {
+		fmt.Printf("File error: %v\n", err)
+	}
+
+	myJson := string(file)
+
+	client := gjson.Get(myJson, "pgLogs")
+
+	var connString string = fmt.Sprintf("user=%s dbname=%s password=%s host=%s port=%s sslmode=disable", client.Get("database.Username"), client.Get("database.Dbname"), client.Get("database.Passoword"), client.Get("database.Host"), client.Get("database.Port"))
+	dbLog, dbConnError := sql.Open("postgres", connString)
+
+	if dbConnError != nil {
+		panic("Could not connect to log database")
+	}
+	defer dbLog.Close()
+
+	//Retirando todas as aspas da mensagem de erro, para evitar error no PG
+	queryString = strings.ReplaceAll(queryString, "'", "''")
+
+	insertString := fmt.Sprintf("INSERT INTO tb_logs_details (tabela,pk,queryString,dbResponse,responseType) VALUES ('%s','%s','%s','%s','%s')", tabela, pk, queryString, dbResponse, responseType)
+
+	fmt.Println(insertString)
+
+	_, queryError := dbLog.Exec(insertString)
+	if queryError != nil {
+		log.Println(queryError)
+		panic("Could not execute log_details query")
+	}
 
 }

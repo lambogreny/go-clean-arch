@@ -19,6 +19,7 @@ func AccountService(clientId string) error {
 	*Erp : Todas as funções que operam no banco do ERP
 	 */
 	log.Println("Início da transação do procedimento que leva dados de ERP para o CRM")
+	utils.LogFile("CRM/ACCOUNT", " debug", "DEBUG ", "err.Error()", "queryString")
 
 	////Chama a função que retorna as duas conexões
 	dbCrmConn, dbErpConn, ownerCrm, connError := crm.ServicesDatabases(clientId)
@@ -31,17 +32,10 @@ func AccountService(clientId string) error {
 	repoCrm := crmRepository.NewCfrRepositoryDbErp(dbCrmConn)
 	repoErp := crmRepository.NewCfrRepositoryDbErp(dbErpConn)
 
-	//repoErp := crmRepository.NewCfrRepositoryDbErp(dbErpConn)
-	//repoCrm := crmRepository.NewCfrRepositoryDbErp(dbCrmConn)
-
 	usecaseCrm := cfr.NewProcessAccount(repoCrm)
 	usecaseErp := cfr.NewProcessAccount(repoErp)
 
-	fmt.Println(usecaseCrm)
-	//fmt.Println(usecaseErp)
-
 	//// ----------------------------------------------------------- Selecionando todas as linhas ------------------------------------------------------------//
-	//
 	data, err := usecaseErp.UseCaseSelect()
 	if err != nil {
 		utils.LogDatabase(clientId, "ACCOUNT", "S", "SELECT", true, err.Error())
@@ -62,11 +56,11 @@ func AccountService(clientId string) error {
 				//Para casos de duplicate key, apenas loga e continua o loop
 				case strings.Contains(IErr.Error(), "duplicate key"):
 					log.Println("Cai no duplicate key")
-					utils.LogDatabase(clientId, "CFR", "I", helpers.String(x.Id), true, IErr.Error())
+					utils.LogDatabase(clientId, "ACCOUNT", "I", helpers.String(x.Id), true, IErr.Error())
 					continue
 				default:
 					log.Println("Cai no erro default")
-					utils.LogDatabase(clientId, "CFR", "I", helpers.String(x.Id), true, IErr.Error())
+					utils.LogDatabase(clientId, "ACCOUNT", "I", helpers.String(x.Id), true, IErr.Error())
 					return IErr
 				}
 			}
@@ -79,17 +73,17 @@ func AccountService(clientId string) error {
 				//Para casos de duplicate key, apenas loga e continua o loop
 				case strings.Contains(UErr.Error(), "duplicate key"):
 					log.Println("Cai no duplicate key")
-					utils.LogDatabase(clientId, "CFR", "I", helpers.String(x.Id), true, UErr.Error())
+					utils.LogDatabase(clientId, "ACCOUNT", "I", helpers.String(x.Id), true, UErr.Error())
 					continue
 				default:
 					log.Println("Cai no erro default")
-					utils.LogDatabase(clientId, "CFR", "I", helpers.String(x.Id), true, UErr.Error())
+					utils.LogDatabase(clientId, "ACCOUNT", "I", helpers.String(x.Id), true, UErr.Error())
 					return UErr
 				}
 			}
 		}
 
-		utils.LogDatabase(clientId, "CFR", helpers.String(x.Tipo), helpers.String(x.Id), false, "")
+		utils.LogDatabase(clientId, "ACCOUNT", helpers.String(x.Tipo), helpers.String(x.Id), false, "")
 
 		//Para não derrubar o banco
 		time.Sleep(1 * time.Second)
@@ -125,7 +119,6 @@ func AccountInsertWithCheck(usecaseCrm *cfr.ProcessAccount, usecaseErp *cfr.Proc
 	case false:
 		log.Println("Chequei o registro e cai no insert!")
 
-		//#TODO Fazendo o insert
 		InsertErr := usecaseCrm.UseCaseInsert(x, crmOwner)
 
 		if InsertErr != nil {
@@ -139,8 +132,6 @@ func AccountInsertWithCheck(usecaseCrm *cfr.ProcessAccount, usecaseErp *cfr.Proc
 		}
 
 	}
-
-	log.Println("O resultado do checkUpdate é : ", checkUpdate)
 
 	return nil
 }

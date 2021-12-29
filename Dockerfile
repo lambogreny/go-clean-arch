@@ -7,6 +7,9 @@ ENV GO111MODULE=on \
     GOARCH=amd64 \
     SERVER_PORT=:8080
 
+# Info do maintainer
+LABEL maintainer="Augusto Lorencatto <lorencattoaugusto@gmail.com>"
+
 #Movendo o diretório de trabalho para /build
 WORKDIR /build
 
@@ -27,6 +30,9 @@ RUN go build -o main .
 
 # Movendo o arquivo binário para a pasta /dist
 WORKDIR /dist
+
+#Declarando volumes to mount
+VOLUME ./containerLogs:/dist/logs
 
 # Comando para dar permissões para a pasta dentro do conteiner
 #RUN chmod -R 777 ./
