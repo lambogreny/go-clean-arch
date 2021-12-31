@@ -4,9 +4,10 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"log"
+
 	"github.com/augusto/imersao5-esquenta-go/entity/crm/prd"
 	"github.com/augusto/imersao5-esquenta-go/utils"
-	"log"
 )
 
 type PrdRepositoryDbErp struct {
@@ -23,6 +24,7 @@ func (t PrdRepositoryDbErp) CheckUpdateCrm(codigoProduto string) (bool, error) {
 	rows, err := t.db.Query(queryString)
 
 	if err != nil {
+		utils.LogDatabaseDetails("PRD", "checkUpdateCrm", queryString, err.Error(), "")
 		return false, err
 	}
 
@@ -101,7 +103,8 @@ func (t PrdRepositoryDbErp) Update(prd prd.Prd, owner string) error {
 	_, err := tx.ExecContext(ctx, queryString)
 
 	if err != nil {
-		utils.LogFile("CRM/PRD", " update", "CRITICAL ", err.Error(), queryString)
+		// utils.LogFile("CRM/PRD", " update", "CRITICAL ", err.Error(), queryString)
+		utils.LogDatabaseDetails("PRD", prd.Codigo_produto, queryString, err.Error(), "")
 		tx.Rollback()
 		return err
 	}
@@ -109,7 +112,8 @@ func (t PrdRepositoryDbErp) Update(prd prd.Prd, owner string) error {
 	commit := tx.Commit()
 
 	if commit != nil {
-		utils.LogFile("CRM/PRD", " update", "CRITICAL ", err.Error(), queryString)
+		// utils.LogFile("CRM/PRD", " update", "CRITICAL ", err.Error(), queryString)
+		utils.LogDatabaseDetails("PRD", prd.Codigo_produto, "COMMIT", err.Error(), "")
 		return commit
 	}
 
@@ -137,7 +141,8 @@ func (t PrdRepositoryDbErp) Delete(codigoProduto string, tipo string) error {
 	_, err := tx.ExecContext(ctx, queryString)
 
 	if err != nil {
-		utils.LogFile("CRM/PRD", " delete", "CRITICAL ", err.Error(), queryString)
+		// utils.LogFile("CRM/PRD", " delete", "CRITICAL ", err.Error(), queryString)
+		utils.LogDatabaseDetails("PRD", codigoProduto, queryString, err.Error(), "")
 		tx.Rollback()
 		return err
 	}
@@ -145,7 +150,8 @@ func (t PrdRepositoryDbErp) Delete(codigoProduto string, tipo string) error {
 	commit := tx.Commit()
 
 	if commit != nil {
-		utils.LogFile("CRM/PRD", " delete", "CRITICAL ", commit.Error(), queryString)
+		// utils.LogFile("CRM/PRD", " delete", "CRITICAL ", commit.Error(), queryString)
+		utils.LogDatabaseDetails("PRD", codigoProduto, "COMMIT", err.Error(), "")
 		return err
 	}
 
@@ -181,7 +187,8 @@ func (t PrdRepositoryDbErp) Select() ([]prd.Prd, error) {
 	fmt.Println(rows)
 
 	if err != nil {
-		utils.LogFile("ERROR", " prd", "CRITICAL ", err.Error(), queryString)
+		// utils.LogFile("ERROR", " prd", "CRITICAL ", err.Error(), queryString)
+		utils.LogDatabaseDetails("PRD", "SELECT", queryString, err.Error(), "")
 		return []prd.Prd{}, err
 	}
 
@@ -305,7 +312,8 @@ func (t PrdRepositoryDbErp) Insert(prd prd.Prd, owner string) error {
 	_, err := tx.ExecContext(ctx, queryString)
 
 	if err != nil {
-		utils.LogFile("CRM/PRD", " insert", "CRITICAL ", err.Error(), queryString)
+		// utils.LogFile("CRM/PRD", " insert", "CRITICAL ", err.Error(), queryString)
+		utils.LogDatabaseDetails("PRD", prd.Codigo_produto, queryString, err.Error(), "")
 		tx.Rollback()
 		return err
 	}
@@ -313,7 +321,8 @@ func (t PrdRepositoryDbErp) Insert(prd prd.Prd, owner string) error {
 	commit := tx.Commit()
 
 	if commit != nil {
-		utils.LogFile("CRM/PRD", " insert", "CRITICAL ", err.Error(), queryString)
+		// utils.LogFile("CRM/PRD", " insert", "CRITICAL ", err.Error(), queryString)
+		utils.LogDatabaseDetails("PRD", prd.Codigo_produto, "COMMIT", err.Error(), "")
 		return commit
 	}
 

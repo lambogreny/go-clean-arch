@@ -1,4 +1,4 @@
--- Rodar no banco do postgresql
+-- Rodar no banco do postgresql para conferir Logs de erros
 
 select * from tb_logs
 select * from tb_logs_details
@@ -10,9 +10,13 @@ select tb_logs_details.id,tb_logs_details.tabela,tb_logs.tipo,
        tb_logs.pk, tb_logs.error,tb_logs_details.queryString,tb_logs_details.dbResponse,tb_logs_details.created_at
 from tb_logs INNER JOIN tb_logs_details on (tb_logs.pk = tb_logs_details.pk)
 
---delete from tb_logs
+-- Tabelas auxiliares de logs
+crm_pk_corr
+tb_logs
+tb_logs_details
 
--- Checando os metadados no postgres
+
+-- Checando os metadados (postgres)
 SELECT table_name,column_name,is_nullable,data_type,character_maximum_length
 FROM information_schema.columns
 WHERE table_schema = 'public'
@@ -21,7 +25,7 @@ WHERE table_schema = 'public'
   AND character_maximum_length = 6
 ORDER BY ordinal_position;
 
--- Mostrando o create
+-- Mostrando o create (postgres)
 SELECT
         'CREATE TABLE ' || relname || E'\n(\n' ||
   array_to_string(

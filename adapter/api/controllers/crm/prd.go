@@ -1,12 +1,13 @@
 package controllersCrm
 
 import (
+	"net/http"
+
 	crmRepository "github.com/augusto/imersao5-esquenta-go/adapter/repository/crm"
 	"github.com/augusto/imersao5-esquenta-go/services/crm/erp_crm"
 	"github.com/augusto/imersao5-esquenta-go/usecase/crm/prd"
 	"github.com/augusto/imersao5-esquenta-go/utils"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 type PrdControllerErp struct {

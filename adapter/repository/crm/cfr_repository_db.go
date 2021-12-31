@@ -4,10 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"log"
+
 	"github.com/augusto/imersao5-esquenta-go/entity/crm/cfr"
 	"github.com/augusto/imersao5-esquenta-go/utils"
 	"github.com/augusto/imersao5-esquenta-go/utils/helpers"
-	"log"
 )
 
 type CfrRepositoryDbErp struct {
@@ -32,7 +33,7 @@ func (t CfrRepositoryDbErp) CheckUpdateErp(id string) (bool, error) {
 
 	for rows.Next() {
 		if err := rows.Scan(&count); err != nil {
-			utils.LogFile("CRM/CFR", " check", "CRITICAL ", err.Error(), queryString)
+			utils.LogFile("CRM/CFR", " CheckUpdateErp", "CRITICAL ", err.Error(), queryString)
 			return false, err
 		}
 	}
