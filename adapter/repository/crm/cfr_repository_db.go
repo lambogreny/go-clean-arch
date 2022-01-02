@@ -221,6 +221,7 @@ func (t CfrRepositoryDbErp) SelectCrm(owner string) ([]cfr.Account, error) {
 			&account.TelefoneCobranca,
 		); err != nil {
 			log.Println(err.Error())
+			utils.LogDatabaseDetails("CFR", "SCAN", queryString, err.Error(), "")
 			return nil, err
 		}
 

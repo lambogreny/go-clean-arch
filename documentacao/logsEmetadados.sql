@@ -25,6 +25,9 @@ WHERE table_schema = 'public'
   AND character_maximum_length = 6
 ORDER BY ordinal_position;
 
+-- Inserindo na tabela de controle de pk
+INSERT INTO crm_pk_corr (version,tabela,pk) VALUES ('1','QUOTE_ITEM','quote.id')
+
 -- Mostrando o create (postgres)
 SELECT
         'CREATE TABLE ' || relname || E'\n(\n' ||

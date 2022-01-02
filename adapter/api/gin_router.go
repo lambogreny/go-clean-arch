@@ -14,7 +14,6 @@ func NewRouter() *gin.Engine {
 	router.Use(midllewares.BasicAuth()) //Basic auth
 	// router.Use(midllewares.RequestIdMiddleware()) //Id do request
 	router.Use(midllewares.CheckClientToken()) //Valida se há api key
-	router.Use(midllewares.ErrorHandle())      // Nao esta sendo utilziado
 
 	v1 := router.Group("/v1")
 
@@ -27,6 +26,8 @@ func NewRouter() *gin.Engine {
 	Cfr := new(controllersCrm.CfrControllerErp)
 	pedido := new(controllersCrm.PedidoControllerErp)
 
+	utils := new(controllersCrm.SharedServicesController)
+
 	v1.GET("/health", health.Status)
 	v1.POST("/transaction", transaction.NewTransaction)
 	v1.GET("/transaction", transaction.GetTransaction)
@@ -37,7 +38,7 @@ func NewRouter() *gin.Engine {
 
 	v1.POST("/queryInfo/cards", queryInfo.GetCards)
 
-	//CRM
+	//CRM REST
 	v1.GET("/crm/erp/prd", crmPrd.GetErp)
 
 	//Crm Services
@@ -45,6 +46,9 @@ func NewRouter() *gin.Engine {
 	v1.GET("/crm/erp/cfr/service", Cfr.CallCfrService)          //Leva os dados para a CFR
 	v1.GET("/crm/erp/account/service", Cfr.CallAccountService)  //Leva os dados para a Account
 	v1.GET("/crm/erp/pedido/service", pedido.CallPedidoService) //Leva os dados para a CPV e IPV
+
+	//CRM Utils
+	v1.POST("/crm/utils/log", utils.LogCsv) //Loga os dados no arquivo CSV
 
 	return router
 }

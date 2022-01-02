@@ -3,10 +3,15 @@ package pedido
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"log"
+	"net/http"
+	"strings"
+
 	"github.com/augusto/imersao5-esquenta-go/entity/crm"
 	"github.com/augusto/imersao5-esquenta-go/entity/crm/pedido"
+	"github.com/augusto/imersao5-esquenta-go/utils"
 	"github.com/augusto/imersao5-esquenta-go/utils/helpers"
-	"log"
 )
 
 type ProcessPedido struct {
@@ -103,52 +108,55 @@ func (p *ProcessPedido) UseCaseCallApi(payloads []pedido.PedidoPayload, extra he
 
 		if payloadErr != nil {
 			log.Println("PAYLOAD ERROR")
+			utils.LogDatabaseDetails("PEDIDO", "CALL API", "PARSE STRUCT TO JSON", payloadErr.Error(), "")
 			return payloadErr
 		}
 
-		fmt.Printf(string(u))
-
 		// -----------------------------------------------------------Montando e executando o request ------------------------------------------------------------//
-		//payload := strings.NewReader(string(u))
-		//
-		//req, reqError := http.NewRequest("POST", extra.Base_url, payload)
-		//
-		//if reqError != nil {
-		//	log.Println("ERRO NA MONTAGEM DA REQUISIÇÃO")
-		//	return reqError
-		//}
-		//
-		//req.Header.Add("Content-Type", "application/json")
-		//
-		//res, resError := http.DefaultClient.Do(req)
-		//
-		//if resError != nil {
-		//	log.Println("ERRO NA CHAMADA DA API")
-		//	return resError
-		//}
-		//defer res.Body.Close()
-		//
-		//body, bodyError := ioutil.ReadAll(res.Body)
-		//
-		//if bodyError != nil {
-		//	log.Println("ERRO NA LEITURA DE RESPOSTA")
-		//	return bodyError
-		//}
-		//
-		//if res.StatusCode == 500 {
-		//	fmt.Errorf("Internal server error na api de pedidos no ti9")
-		//}
-		//
-		//if res.StatusCode != 201 {
-		//	fmt.Errorf(string(body))
-		//}
-		//
-		//fmt.Println(res.StatusCode)
-		//fmt.Println(string(body))
+		payload := strings.NewReader(string(u))
+
+		req, reqError := http.NewRequest("POST", extra.Base_url, payload)
+
+		if reqError != nil {
+			log.Println("ERRO NA MONTAGEM DA REQUISIÇÃO")
+			utils.LogDatabaseDetails("PEDIDO", "CALL API", "MONTAGEM REQUEST", reqError.Error(), "")
+			return reqError
+		}
+
+		req.Header.Add("Content-Type", "application/json")
+
+		res, resError := http.DefaultClient.Do(req)
+
+		if resError != nil {
+			log.Println("ERRO NA CHAMADA DA API")
+			utils.LogDatabaseDetails("PEDIDO", "CALL API", "ERRO REQUEST API", reqError.Error(), "")
+			return resError
+		}
+		defer res.Body.Close()
+
+		body, bodyError := ioutil.ReadAll(res.Body)
+
+		if bodyError != nil {
+			log.Println("ERRO NA LEITURA DE RESPOSTA")
+			utils.LogDatabaseDetails("PEDIDO", "CALL API", "ERRO LEITURA DA RESPOSTA", reqError.Error(), "")
+			return bodyError
+		}
+
+		if res.StatusCode == 500 {
+			utils.LogDatabaseDetails("PEDIDO", "CALL API", "STATUS 500 API PEDIDo", reqError.Error(), "")
+			fmt.Errorf("Internal server error na api de pedidos no ti9")
+		}
+
+		if res.StatusCode != 201 {
+			utils.LogDatabaseDetails("PEDIDO", "CALL API", "STATUS DIFERENTE DE 201", reqError.Error(), "")
+			fmt.Errorf(string(body))
+		}
+
+		fmt.Println(res.StatusCode)
+		fmt.Println(string(body))
 
 		// -----------------------------------------------------------Deletando o registro da sincroniza ------------------------------------------------------------//
 
-		//#TODO aqui chamar o delete na sincroniza
 		deleteSincroniza := p.Repository.DeleteSincroniza(extra.Owner, x.NumeroPedPalm)
 
 		if deleteSincroniza != nil {

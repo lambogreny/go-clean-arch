@@ -4,9 +4,10 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"log"
+
 	"github.com/augusto/imersao5-esquenta-go/entity/crm/pedido"
 	"github.com/augusto/imersao5-esquenta-go/utils"
-	"log"
 )
 
 type PedidoRepositoryDbErp struct {
@@ -57,9 +58,8 @@ func (t PedidoRepositoryDbErp) SelectQuote(owner string) ([]pedido.Quote, error)
 	rows, err := t.db.Query(queryString)
 
 	if err != nil {
-		utils.LogFile("ERROR", " pedido", "CRITICAL ", err.Error(), queryString)
-		log.Println("could not execute query:", err)
-
+		// utils.LogFile("ERROR", " pedido", "CRITICAL ", err.Error(), queryString)
+		utils.LogDatabaseDetails("PEDIDO", "SELECT", queryString, err.Error(), "")
 		return []pedido.Quote{}, err
 	}
 
@@ -93,6 +93,7 @@ func (t PedidoRepositoryDbErp) SelectQuote(owner string) ([]pedido.Quote, error)
 			&pedido.Transp,
 			&pedido.CodRepresentante,
 		); err != nil {
+			utils.LogDatabaseDetails("PEDIDO", "SCAN", queryString, err.Error(), "")
 			log.Println(err.Error())
 			return nil, err
 		}
@@ -137,8 +138,9 @@ func (t PedidoRepositoryDbErp) SelectQuoteItem(owner string, id string) ([]pedid
 	rows, err := t.db.Query(queryString)
 
 	if err != nil {
-		log.Println("could not execute query:", err)
-		utils.LogFile("ERROR", " pedido", "CRITICAL ", err.Error(), queryString)
+		// log.Println("could not execute query:", err)
+		// utils.LogFile("ERROR", " pedido", "CRITICAL ", err.Error(), queryString)
+		utils.LogDatabaseDetails("PEDIDO", "SELECT", queryString, err.Error(), "")
 
 		return []pedido.QuoteItem{}, err
 	}
@@ -171,6 +173,7 @@ func (t PedidoRepositoryDbErp) SelectQuoteItem(owner string, id string) ([]pedid
 			&item.DescValor,
 		); err != nil {
 			log.Println(err.Error())
+			utils.LogDatabaseDetails("PEDIDO", "SCAN", queryString, err.Error(), "")
 			return nil, err
 		}
 		items = append(items, item)
@@ -197,7 +200,8 @@ func (t PedidoRepositoryDbErp) DeleteSincroniza(owner string, id string) error {
 	_, quoteErr := tx.ExecContext(ctx, quoteQueryString)
 
 	if quoteErr != nil {
-		utils.LogFile("CRM/PEDIDO", " delete", "CRITICAL ", quoteErr.Error(), quoteQueryString)
+		// utils.LogFile("CRM/PEDIDO", " delete", "CRITICAL ", quoteErr.Error(), quoteQueryString)
+		utils.LogDatabaseDetails("PEDIDO", "delete", quoteQueryString, quoteErr.Error(), "")
 		tx.Rollback()
 		return quoteErr
 	}
@@ -213,7 +217,8 @@ func (t PedidoRepositoryDbErp) DeleteSincroniza(owner string, id string) error {
 	_, quoteItemErr := tx.ExecContext(ctx, quoteItemQueryString)
 
 	if quoteItemErr != nil {
-		utils.LogFile("CRM/PEDIDO", " delete", "CRITICAL ", quoteItemErr.Error(), quoteQueryString)
+		// utils.LogFile("CRM/PEDIDO", " delete", "CRITICAL ", quoteItemErr.Error(), quoteQueryString)
+		utils.LogDatabaseDetails("PEDIDO", "delete", quoteItemQueryString, quoteItemErr.Error(), "")
 		tx.Rollback()
 		return quoteItemErr
 	}
@@ -226,6 +231,5 @@ func (t PedidoRepositoryDbErp) DeleteSincroniza(owner string, id string) error {
 	//	return commit
 	//}
 
-	log.Println("Consegui executar tods os deletes")
 	return nil
 }
