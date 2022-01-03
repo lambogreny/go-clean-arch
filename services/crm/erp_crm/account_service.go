@@ -2,15 +2,16 @@ package erp_crm
 
 import (
 	"fmt"
+	"log"
+	"strings"
+	"time"
+
 	crmRepository "github.com/augusto/imersao5-esquenta-go/adapter/repository/crm"
 	cfr2 "github.com/augusto/imersao5-esquenta-go/entity/crm/cfr"
 	"github.com/augusto/imersao5-esquenta-go/services/crm"
 	"github.com/augusto/imersao5-esquenta-go/usecase/crm/cfr"
 	"github.com/augusto/imersao5-esquenta-go/utils"
 	"github.com/augusto/imersao5-esquenta-go/utils/helpers"
-	"log"
-	"strings"
-	"time"
 )
 
 func AccountService(clientId string) error {
@@ -19,7 +20,7 @@ func AccountService(clientId string) error {
 	*Erp : Todas as funções que operam no banco do ERP
 	 */
 	log.Println("Início da transação do procedimento que leva dados de ERP para o CRM")
-	utils.LogFile("CRM/ACCOUNT", " debug", "DEBUG ", "err.Error()", "queryString")
+	// utils.LogFile("CRM/ACCOUNT", " debug", "DEBUG ", "err.Error()", "queryString")
 
 	////Chama a função que retorna as duas conexões
 	dbCrmConn, dbErpConn, ownerCrm, connError := crm.ServicesDatabases(clientId)

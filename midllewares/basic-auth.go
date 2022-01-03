@@ -16,6 +16,25 @@ func respondWithError(c *gin.Context, code int, message interface{}) {
 }
 
 /*
+	Função que libera o CORS
+*/
+func CORSMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE")
+
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+
+		c.Next()
+	}
+}
+
+/*
 	Função que é acionada pelo Middleware e verifica se na requisição existe um token do cliente
 */
 func CheckClientToken() gin.HandlerFunc {
@@ -32,7 +51,9 @@ func CheckClientToken() gin.HandlerFunc {
 	}
 }
 
-//Retorna um id de transação
+/*
+	Função que retorna um id no header da requisição de retorno
+*/
 func RequestIdMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Writer.Header().Set("X-Request-Id", uuid.NewV4().String())

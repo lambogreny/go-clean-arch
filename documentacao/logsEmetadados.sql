@@ -1,5 +1,4 @@
 -- Rodar no banco do postgresql para conferir Logs de erros
-
 select * from tb_logs
 select * from tb_logs_details
 
@@ -11,9 +10,15 @@ select tb_logs_details.id,tb_logs_details.tabela,tb_logs.tipo,
 from tb_logs INNER JOIN tb_logs_details on (tb_logs.pk = tb_logs_details.pk)
 
 -- Tabelas auxiliares de logs
-crm_pk_corr
-tb_logs
-tb_logs_details
+
+  -- Tabela que relaciona que é a pk de cada serviço
+  crm_pk_corr
+
+  -- tabela de logs da camada de service
+  tb_logs
+
+  -- Tabela de logs na camada de repositório de banco : representa os detalhes (em querys) da tb_logs
+  tb_logs_details
 
 
 -- Checando os metadados (postgres)

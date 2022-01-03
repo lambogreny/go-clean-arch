@@ -22,6 +22,8 @@ func NewProcessPedido(repository crm.PedidoRepository) *ProcessPedido {
 	return &ProcessPedido{Repository: repository}
 }
 
+// -------------------------------------------------- CRM -> ERP -----------------------------
+
 func (p *ProcessPedido) UseCaseSelect(owner string, extra helpers.ExtraInfo) ([]pedido.PedidoPayload, error) {
 
 	//Faz select no pedido
@@ -168,4 +170,46 @@ func (p *ProcessPedido) UseCaseCallApi(payloads []pedido.PedidoPayload, extra he
 
 	return nil
 
+}
+
+//-------------------------------------------------------------- ERP -> CRM ---------------------------
+func (p *ProcessPedido) UseCaseSelectCpv() ([]pedido.Cpv, error) {
+
+	cpv, err := p.Repository.SelectCpv()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return cpv, nil
+
+}
+
+func (p *ProcessPedido) UseCaseCheckUpdateCrm(id string, owner string) (bool, error) {
+
+	resp, err := p.Repository.CheckUpdateCrm(id, owner)
+
+	if err != nil {
+		return false, err
+	}
+	return resp, nil
+}
+
+func (p *ProcessPedido) UseCaseUpdate(cpv pedido.Cpv, owner string) error {
+
+	err := p.Repository.UpdateCrm(cpv, owner)
+
+	if err != nil {
+		return err
+	}
+	return nil
+
+}
+
+func (p *ProcessPedido) UseCaseInsert(cpv pedido.Cpv) error {
+	return nil
+}
+
+func (p *ProcessPedido) UseCaseDelete(id string) error {
+	return nil
 }

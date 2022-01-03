@@ -1,4 +1,7 @@
 # TODO
+ 
+## Parado em :
+  FAZENDO UpdateCrm
 
 - Criação do fluxo de volta do pedido da cpv e ipv
 

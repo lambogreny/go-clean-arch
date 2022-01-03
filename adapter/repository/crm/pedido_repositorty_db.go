@@ -18,6 +18,7 @@ func NewPedidoRepositoryDbErp(db *sql.DB) *PedidoRepositoryDbErp {
 	return &PedidoRepositoryDbErp{db: db}
 }
 
+// ---------------------------------------- CRM -> ERP --------------------------//
 func (t PedidoRepositoryDbErp) SelectQuote(owner string) ([]pedido.Quote, error) {
 	queryString := utils.Msg(`SELECT id,
 									   Upper(filial),
@@ -231,5 +232,185 @@ func (t PedidoRepositoryDbErp) DeleteSincroniza(owner string, id string) error {
 	//	return commit
 	//}
 
+	return nil
+}
+
+//------------------------------------ ERP para CRM -------------------------------//
+
+func (t PedidoRepositoryDbErp) SelectCpv() ([]pedido.Cpv, error) {
+
+	var controlLimitQuery string = "LIMIT 10"
+
+	queryString := utils.Msg(`SELECT 
+								tipo,
+								numero,
+								pedido_fil,
+								cliente,
+								codigo_operacao,
+								filial,
+								data_entrada,
+								data_entrega,
+								finalidade,
+								ped_cliente,
+								cond_pagto,
+								valor_mercadorias,
+								valor_total,
+								tipo_frete,
+								peso_liquido,
+								peso_bruto,
+								entrega_end,
+								entrega_bairro,
+								entrega_cep,
+								entrega_cidade,
+								entrega_uf,
+								transp,
+								usuario_inclusao,
+								usuario_alteracao,
+								data_hora_inclusao,
+								data_hora_alteracao,
+								status,
+								tipo_abordagem,
+								unidade_negocio,
+								probab_fech,
+								meio_conhec,
+								emissao,
+								obs_simples,
+								cod_representante
+								from cpv
+								inner join tb_crm_sincroniza ON numero = pk and tabela = 'CPV'
+								{{.controlLimitQuery}}
+							`, map[string]interface{}{"controlLimitQuery": controlLimitQuery})
+
+	rows, err := t.db.Query(queryString)
+
+	if err != nil {
+		utils.LogDatabaseDetails("CPV", "SELECT", queryString, err.Error(), "")
+	}
+
+	cpvs := []pedido.Cpv{}
+
+	for rows.Next() {
+		cpv := pedido.Cpv{}
+
+		if err := rows.Scan(&cpv.Tipo,
+			&cpv.Numero,
+			&cpv.PedidoFil,
+			&cpv.Cliente,
+			&cpv.CodigoOperacao,
+			&cpv.Filial,
+			&cpv.DataEntrada,
+			&cpv.DataEntrega,
+			&cpv.Finalidade,
+			&cpv.PedCliente,
+			&cpv.CondPagamento,
+			&cpv.ValorMercadorias,
+			&cpv.ValorTotal,
+			&cpv.TipoFrete,
+			&cpv.PesoLiquido,
+			&cpv.PesoBruto,
+			&cpv.EntregaEnd,
+			&cpv.EntregaBairro,
+			&cpv.EntregaCep,
+			&cpv.EntregaCidade,
+			&cpv.EntregaUf,
+			&cpv.Transp,
+			&cpv.UsuarioInclusao,
+			&cpv.UsuarioAlteracao,
+			&cpv.DataHoraInclusao,
+			&cpv.DataHoraAlteracao,
+			&cpv.Status,
+			&cpv.TipoAbordagem,
+			&cpv.UnidadeNegocio,
+			&cpv.ProbabFech,
+			&cpv.MeioConhec,
+			&cpv.Emissao,
+			&cpv.ObsSimples,
+			&cpv.CodRepresentante,
+		); err != nil {
+			log.Println(err.Error())
+			utils.LogDatabaseDetails("CPV", "SCAN", queryString, err.Error(), "")
+			return nil, err
+		}
+
+		cpvs = append(cpvs, cpv)
+	}
+
+	return cpvs, nil
+}
+
+func (t PedidoRepositoryDbErp) CheckUpdateCrm(id string, owner string) (bool, error) {
+	queryString := fmt.Sprintf(`SELECT count(*) from %s.quote where id= '%s'`, owner, id)
+	fmt.Println(queryString)
+
+	rows, err := t.db.Query(queryString)
+
+	if err != nil {
+		utils.LogDatabaseDetails("CPV", id, queryString, err.Error(), "")
+		return false, err
+	}
+
+	var count int
+
+	for rows.Next() {
+		if err := rows.Scan(&count); err != nil {
+			utils.LogDatabaseDetails("CPV", id, queryString, err.Error(), "")
+			return false, err
+		}
+	}
+
+	if count == 0 {
+		return false, nil
+	}
+	return true, nil
+
+}
+
+func (t PedidoRepositoryDbErp) UpdateCrm(cpv pedido.Cpv, owner string) error {
+	queryString := utils.Msg(`UPDATE {{.owner}}.quote SET
+									number_a  = '{el['numero']}',
+									pedidofil  = {el['pedido_fil']},
+									account_id  = {el['cliente']},
+									codigooperacao  = {el['codigo_operacao']},
+									filial  = {el['filial']},
+									date_quoted  = {el['data_entrada']},
+									dataentrega  = {el['data_entrega']},
+									finalidade  = {el['finalidade']},
+									pedcliente  = {el['ped_cliente']},
+									condpagto  = {el['cond_pagto']},
+									valormercadorias  = {el['valor_mercadorias']},
+									valortotal  = {el['valor_total']},
+									tipofrete  = {el['tipo_frete']},
+									pesoliquido  = {el['peso_liquido']},
+									pesobruto  = {el['peso_bruto']},
+									shipping_address_street  = {el['entrega_end']},
+									entregabairro  = {el['entrega_bairro']},
+									shipping_address_postal_code  = {el['entrega_cep']},
+									shipping_address_state  = {el['entrega_uf']},
+									transp  = {el['transp']},
+									created_by_id  = {el['usuario_inclusao']},
+									modified_by_id  = '{variables['usuario_alteracao']}',
+									created_at  = {el['data_hora_inclusao']},
+									modified_at  = {el['data_hora_alteracao']},
+									status  = {el['status']},
+									tipoabordagem  = {el['tipo_abordagem']},
+									unidadenegocio  = {el['unidade_negocio']},
+									probabfech  = {el['probab_fech']},
+									meioconhec  = {el['meio_conhec']},
+									emissao  = {el['emissao']}, 
+									obssimples  = {el['obs_simples']},
+									codrepresentante  = {el['cod_representante']}
+									WHERE id = {el['numero']}`, map[string]interface{}{
+		"owner": owner,
+	})
+
+	fmt.Println(queryString)
+	return nil
+}
+
+func (t PedidoRepositoryDbErp) InsertCrm(pedido.Cpv) error {
+	return nil
+}
+
+func (t PedidoRepositoryDbErp) DeleteErp(id string) error {
 	return nil
 }
