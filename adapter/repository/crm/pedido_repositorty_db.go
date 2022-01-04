@@ -8,6 +8,7 @@ import (
 
 	"github.com/augusto/imersao5-esquenta-go/entity/crm/pedido"
 	"github.com/augusto/imersao5-esquenta-go/utils"
+	"github.com/augusto/imersao5-esquenta-go/utils/helpers"
 )
 
 type PedidoRepositoryDbErp struct {
@@ -367,50 +368,262 @@ func (t PedidoRepositoryDbErp) CheckUpdateCrm(id string, owner string) (bool, er
 
 func (t PedidoRepositoryDbErp) UpdateCrm(cpv pedido.Cpv, owner string) error {
 	queryString := utils.Msg(`UPDATE {{.owner}}.quote SET
-									number_a  = '{el['numero']}',
-									pedidofil  = {el['pedido_fil']},
-									account_id  = {el['cliente']},
-									codigooperacao  = {el['codigo_operacao']},
-									filial  = {el['filial']},
-									date_quoted  = {el['data_entrada']},
-									dataentrega  = {el['data_entrega']},
-									finalidade  = {el['finalidade']},
-									pedcliente  = {el['ped_cliente']},
-									condpagto  = {el['cond_pagto']},
-									valormercadorias  = {el['valor_mercadorias']},
-									valortotal  = {el['valor_total']},
-									tipofrete  = {el['tipo_frete']},
-									pesoliquido  = {el['peso_liquido']},
-									pesobruto  = {el['peso_bruto']},
-									shipping_address_street  = {el['entrega_end']},
-									entregabairro  = {el['entrega_bairro']},
-									shipping_address_postal_code  = {el['entrega_cep']},
-									shipping_address_state  = {el['entrega_uf']},
-									transp  = {el['transp']},
-									created_by_id  = {el['usuario_inclusao']},
-									modified_by_id  = '{variables['usuario_alteracao']}',
-									created_at  = {el['data_hora_inclusao']},
-									modified_at  = {el['data_hora_alteracao']},
-									status  = {el['status']},
-									tipoabordagem  = {el['tipo_abordagem']},
-									unidadenegocio  = {el['unidade_negocio']},
-									probabfech  = {el['probab_fech']},
-									meioconhec  = {el['meio_conhec']},
-									emissao  = {el['emissao']}, 
-									obssimples  = {el['obs_simples']},
-									codrepresentante  = {el['cod_representante']}
-									WHERE id = {el['numero']}`, map[string]interface{}{
-		"owner": owner,
+									number_a  = '{{.number_a}}',
+									pedidofil  = '{{.pedidofil}}',
+									account_id  = '{{.account_id}}',
+									codigooperacao  = '{{.codigooperacao}}',
+									filial  = '{{.filial}}',
+									date_quoted  = '{{.date_quoted}}',
+									dataentrega  = '{{.dataentrega}}',
+									finalidade  = '{{.finalidade}}',
+									pedcliente  = '{{.pedcliente}}',
+									condpagto  = '{{.condpagto}}',
+									valormercadorias  = '{{.valormercadorias}}',
+									valortotal  = '{{.valortotal}}',
+									tipofrete  = '{{.tipofrete}}',
+									pesoliquido  = '{{.pesoliquido}}',
+									pesobruto  = '{{.pesobruto}}',
+									shipping_address_street  = '{{.shipping_address_street}}',
+									entregabairro  = '{{.entregabairro}}',
+									shipping_address_postal_code  = '{{.shipping_address_postal_code}}',
+									shipping_address_state  = '{{.shipping_address_state}}',
+									transp  = '{{.transp}}',
+									created_by_id  = '{{.created_by_id}}',
+									modified_by_id  = '{{.modified_by_id}}',
+									created_at  = '{{.created_at}}',
+									modified_at  = '{{.modified_at}}',
+									status  = '{{.status}}',
+									tipoabordagem  = '{{.tipoabordagem}}',
+									unidadenegocio  = '{{.unidadenegocio}}',
+									probabfech  = '{{.probabfech}}',
+									meioconhec  = '{{.meioconhec}}',
+									emissao  = '{{.emissao}}',
+									obssimples  = '{{.obssimples}}',
+									codrepresentante  = '{{.codrepresentante}}'
+									WHERE id = '{{.id}}'
+									`, map[string]interface{}{
+		"owner":                        owner,
+		"number_a":                     helpers.String(cpv.Numero),
+		"pedidofil":                    helpers.String(cpv.PedidoFil),
+		"account_id":                   helpers.String(cpv.Cliente),
+		"codigooperacao":               helpers.String(cpv.CodigoOperacao),
+		"filial":                       helpers.String(cpv.Filial),
+		"date_quoted":                  helpers.StringDatetime(cpv.DataEntrada),
+		"dataentrega":                  helpers.StringDatetime(cpv.DataEntrega),
+		"finalidade":                   helpers.String(cpv.Finalidade),
+		"pedcliente":                   helpers.String(cpv.PedCliente),
+		"condpagto":                    helpers.String(cpv.CondPagamento),
+		"valormercadorias":             helpers.String(cpv.ValorMercadorias),
+		"valortotal":                   helpers.String(cpv.ValorTotal),
+		"tipofrete":                    helpers.String(cpv.TipoFrete),
+		"pesoliquido":                  helpers.String(cpv.PesoLiquido),
+		"pesobruto":                    helpers.String(cpv.PesoBruto),
+		"shipping_address_street":      helpers.String(cpv.EntregaEnd),
+		"entregabairro":                helpers.String(cpv.EntregaBairro),
+		"shipping_address_postal_code": helpers.String(cpv.EntregaCep),
+		"shipping_address_state":       helpers.String(cpv.EntregaUf),
+		"transp":                       helpers.String(cpv.Transp),
+		"created_by_id":                helpers.String(cpv.UsuarioInclusao),
+		"modified_by_id":               helpers.String(cpv.UsuarioAlteracao),
+		"created_at":                   helpers.StringDatetime(cpv.DataHoraInclusao),
+		"modified_at":                  helpers.StringDatetime(cpv.DataHoraAlteracao),
+		"status":                       helpers.String(cpv.Status),
+		"tipoabordagem":                helpers.String(cpv.TipoAbordagem),
+		"unidadenegocio":               helpers.String(cpv.UnidadeNegocio),
+		"probabfech":                   helpers.String(cpv.ProbabFech),
+		"meioconhec":                   helpers.String(cpv.MeioConhec),
+		"emissao":                      helpers.StringDatetime(cpv.Emissao),
+		"obssimples":                   helpers.String(cpv.ObsSimples),
+		"codrepresentante":             helpers.String(cpv.CodRepresentante),
+		"id":                           helpers.String(cpv.Numero),
 	})
 
+	// fmt.Println(queryString)
+
+	//Iniciando uma transação
+	ctx := context.Background()
+	tx, _ := t.db.BeginTx(ctx, nil)
+
+	_, err := tx.ExecContext(ctx, queryString)
+
+	if err != nil {
+		utils.LogDatabaseDetails("CPV", helpers.String(cpv.Numero), queryString, err.Error(), "")
+		log.Println("Erro ao atualizar CPV: ", err)
+		tx.Rollback()
+		return err
+	}
+
+	log.Println("CPV atualizado com sucesso: ", cpv.Numero)
+
+	commit := tx.Commit()
+
+	if commit != nil {
+		utils.LogDatabaseDetails("CFR", helpers.String(cpv.Numero), queryString, commit.Error(), "")
+		return commit
+	}
+
+	return nil
+}
+
+func (t PedidoRepositoryDbErp) InsertCrm(cpv pedido.Cpv, owner string) error {
+
+	queryString := utils.Msg(`INSERT into
+									{{.owner}}.quote (id,
+										number_a ,
+										pedidofil,
+										account_id,
+										codigooperacao,
+										filial,
+										date_quoted,
+										dataentrega,
+										finalidade,
+										pedcliente,
+										condpagto,
+										valormercadorias,
+										valortotal,
+										tipofrete ,
+										pesoliquido,
+										pesobruto,
+										shipping_address_street,
+										entregabairro,
+										shipping_address_postal_code,
+										shipping_address_state,
+										transp,
+										created_by_id,
+										modified_by_id,
+										created_at,
+										modified_at,
+										status,
+										tipoabordagem,
+										unidadenegocio,
+										probabfech,
+										meioconhec,
+										emissao,
+										obssimples,
+										codrepresentante
+									)VALUES (
+									'{{.id}}',
+									'{{.number_a}}',
+									'{{.pedidofil}}',
+									'{{.account_id}}',
+									'{{.codigooperacao}}',
+									'{{.filial}}',
+									'{{.date_quoted}}',
+									'{{.dataentrega}}',
+									'{{.finalidade}}',
+									'{{.pedcliente}}',
+									'{{.condpagto}}',
+									'{{.valormercadorias}}',
+									'{{.valortotal}}',
+									'{{.tipofrete}}',
+									'{{.pesoliquido}}',
+									'{{.pesobruto}}',
+									'{{.shipping_address_street}}',
+									'{{.entregabairro}}',
+									'{{.shipping_address_postal_code}}',
+									'{{.shipping_address_state}}',
+									'{{.transp}}',
+									'{{.created_by_id}}',
+									'{{.modified_by_id}}',
+									'{{.created_at}}',
+									'{{.modified_at}}',
+									'{{.status}}',
+									'{{.tipoabordagem}}',
+									'{{.unidadenegocio}}',
+									'{{.probabfech}}',
+									'{{.meioconhec}}',
+									'{{.emissao}}',
+									'{{.obssimples}}',
+									'{{.codrepresentante}}'
+									)`, map[string]interface{}{
+		"owner":                        owner,
+		"number_a":                     helpers.String(cpv.Numero),
+		"pedidofil":                    helpers.String(cpv.PedidoFil),
+		"account_id":                   helpers.String(cpv.Cliente),
+		"codigooperacao":               helpers.String(cpv.CodigoOperacao),
+		"filial":                       helpers.String(cpv.Filial),
+		"date_quoted":                  helpers.StringDatetime(cpv.DataEntrada),
+		"dataentrega":                  helpers.StringDatetime(cpv.DataEntrega),
+		"finalidade":                   helpers.String(cpv.Finalidade),
+		"pedcliente":                   helpers.String(cpv.PedCliente),
+		"condpagto":                    helpers.String(cpv.CondPagamento),
+		"valormercadorias":             helpers.String(cpv.ValorMercadorias),
+		"valortotal":                   helpers.String(cpv.ValorTotal),
+		"tipofrete":                    helpers.String(cpv.TipoFrete),
+		"pesoliquido":                  helpers.String(cpv.PesoLiquido),
+		"pesobruto":                    helpers.String(cpv.PesoBruto),
+		"shipping_address_street":      helpers.String(cpv.EntregaEnd),
+		"entregabairro":                helpers.String(cpv.EntregaBairro),
+		"shipping_address_postal_code": helpers.String(cpv.EntregaCep),
+		"shipping_address_state":       helpers.String(cpv.EntregaUf),
+		"transp":                       helpers.String(cpv.Transp),
+		"created_by_id":                helpers.String(cpv.UsuarioInclusao),
+		"modified_by_id":               helpers.String(cpv.UsuarioAlteracao),
+		"created_at":                   helpers.StringDatetime(cpv.DataHoraInclusao),
+		"modified_at":                  helpers.StringDatetime(cpv.DataHoraAlteracao),
+		"status":                       helpers.String(cpv.Status),
+		"tipoabordagem":                helpers.String(cpv.TipoAbordagem),
+		"unidadenegocio":               helpers.String(cpv.UnidadeNegocio),
+		"probabfech":                   helpers.String(cpv.ProbabFech),
+		"meioconhec":                   helpers.String(cpv.MeioConhec),
+		"emissao":                      helpers.StringDatetime(cpv.Emissao),
+		"obssimples":                   helpers.String(cpv.ObsSimples),
+		"codrepresentante":             helpers.String(cpv.CodRepresentante),
+		"id":                           helpers.String(cpv.Numero),
+	})
+
+	// fmt.Println(queryString)
+
+	ctx := context.Background()
+	tx, _ := t.db.BeginTx(ctx, nil)
+
+	_, err := tx.ExecContext(ctx, queryString)
+
+	if err != nil {
+		utils.LogDatabaseDetails("CPV", helpers.String(cpv.Numero), queryString, err.Error(), "")
+		tx.Rollback()
+		return err
+	}
+
+	commit := tx.Commit()
+
+	if commit != nil {
+		utils.LogDatabaseDetails("CPV", helpers.String(cpv.Numero), queryString, commit.Error(), "")
+		return commit
+	}
+
+	return nil
+}
+
+func (t PedidoRepositoryDbErp) DeleteErp(id string, tipo string) error {
+
+	queryString := fmt.Sprintf(`DELETE FROM tb_crm_sincroniza WHERE pk = '%s' and tipo = '%s'`, id, tipo)
+
 	fmt.Println(queryString)
-	return nil
-}
 
-func (t PedidoRepositoryDbErp) InsertCrm(pedido.Cpv) error {
-	return nil
-}
+	//Iniciando o contexto de transação
+	ctx := context.Background()
+	tx, _ := t.db.BeginTx(ctx, nil)
 
-func (t PedidoRepositoryDbErp) DeleteErp(id string) error {
+	_, err := tx.ExecContext(ctx, queryString)
+
+	if err != nil {
+		//utils.LogFile("CRM/CFR", " delete", "CRITICAL ", err.Error(), queryString)
+		utils.LogDatabaseDetails("CPV", id, queryString, err.Error(), "")
+		tx.Rollback()
+		return err
+	}
+
+	//Para debug
+	// tx.Rollback()
+
+	commit := tx.Commit()
+
+	if commit != nil {
+		//utils.LogFile("CRM/CFR", " delete", "CRITICAL ", commit.Error(), queryString)
+		utils.LogDatabaseDetails("CPV", id, queryString, commit.Error(), "")
+		return err
+	}
+
 	return nil
 }

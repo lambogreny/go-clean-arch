@@ -13,10 +13,7 @@ import (
 	"github.com/augusto/imersao5-esquenta-go/utils/helpers"
 )
 
-/*
-	Implementar ainda:
-	* #TODO Chamada na api do André
-*/
+// -------------------------------------------------------- CRM -> ERP ------------------------------------------------------------//
 func PedidoService(clientId string) error {
 	log.Println("Inicio da transação dos procedimento de integração dos pedidos")
 
@@ -60,6 +57,8 @@ func PedidoService(clientId string) error {
 	return nil
 }
 
+// -------------------------------------------------------- ERP -> CRM : CPV ------------------------------------------------------------//
+
 func QuoteService(clientId string) error {
 	/*
 	*Crm : Todas as funções que operam no banco do CRM
@@ -87,6 +86,7 @@ func QuoteService(clientId string) error {
 
 	if err != nil {
 		utils.LogDatabase(clientId, "CPV", "S", "SELECT", true, err.Error())
+		return err
 	}
 
 	// fmt.Println("Dados de retorno : ", data)
@@ -100,7 +100,7 @@ func QuoteService(clientId string) error {
 		case "I":
 			IErr := CpvInsertWithCheck(useCaseCrm, useCaseErp, x, ownerCrm, helpers.ExtraInfo{})
 
-			if err != nil {
+			if IErr != nil {
 				switch {
 				//Para casos de duplicate key, apenas loga e continua o loop
 				case strings.Contains(IErr.Error(), "duplicate key"):
@@ -109,14 +109,14 @@ func QuoteService(clientId string) error {
 					continue
 				default:
 					log.Println("Cai no erro default")
-					utils.LogDatabase(clientId, "ACCOUNT", "I", helpers.String(x.Numero), true, IErr.Error())
+					utils.LogDatabase(clientId, "CPV", "I", helpers.String(x.Numero), true, IErr.Error())
 					return IErr
 				}
 			}
 		case "U":
 			UErr := CpvInsertWithCheck(useCaseCrm, useCaseErp, x, ownerCrm, helpers.ExtraInfo{})
 
-			if err != nil {
+			if UErr != nil {
 				switch {
 				//Para casos de duplicate key, apenas loga e continua o loop
 				case strings.Contains(UErr.Error(), "duplicate key"):
@@ -125,11 +125,13 @@ func QuoteService(clientId string) error {
 					continue
 				default:
 					log.Println("Cai no erro default")
-					utils.LogDatabase(clientId, "ACCOUNT", "I", helpers.String(x.Numero), true, UErr.Error())
+					utils.LogDatabase(clientId, "CPV", "I", helpers.String(x.Numero), true, UErr.Error())
 					return UErr
 				}
 			}
 		}
+
+		utils.LogDatabase(clientId, "CPV", helpers.String(x.Tipo), helpers.String(x.Numero), false, "")
 
 	}
 
@@ -149,15 +151,35 @@ func CpvInsertWithCheck(usecaseCrm *pedido.ProcessPedido, usecaseErp *pedido.Pro
 	switch checkUpdate {
 	case true:
 		log.Println("Chequei o registro e cai no Update")
-		UpdateErr := usecaseErp.UseCaseUpdate(x, crmOwner)
+		UpdateErr := usecaseCrm.UseCaseUpdate(x, crmOwner)
 
 		if UpdateErr != nil {
 			return UpdateErr
 		}
 
-		//#TODO Chamar o delete
+		deleteErr := usecaseErp.UseCaseDelete(helpers.String(x.Numero), helpers.String(x.Tipo))
+
+		if deleteErr != nil {
+			return deleteErr
+		}
+
 	case false:
 		log.Println("Chequei o registro e cai no insert!")
+
+		InsertErr := usecaseCrm.UseCaseInsert(x, crmOwner)
+
+		if InsertErr != nil {
+			return InsertErr
+		}
+
+		deleteErr := usecaseErp.UseCaseDelete(helpers.String(x.Numero), helpers.String(x.Tipo))
+
+		if deleteErr != nil {
+			return deleteErr
+		}
+
 	}
 	return nil
 }
+
+// -------------------------------------------------------- ERP -> CRM : IPV ------------------------------------------------------------//

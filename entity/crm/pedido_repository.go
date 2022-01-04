@@ -14,6 +14,6 @@ type PedidoRepository interface {
 	SelectCpv() ([]pedido.Cpv, error)
 	CheckUpdateCrm(id string, owner string) (bool, error)
 	UpdateCrm(cpv pedido.Cpv, owner string) error
-	InsertCrm(pedido.Cpv) error
-	DeleteErp(id string) error
+	InsertCrm(cpv pedido.Cpv, owner string) error
+	DeleteErp(id string, tipo string) error
 }

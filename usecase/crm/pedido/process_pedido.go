@@ -198,18 +198,36 @@ func (p *ProcessPedido) UseCaseCheckUpdateCrm(id string, owner string) (bool, er
 func (p *ProcessPedido) UseCaseUpdate(cpv pedido.Cpv, owner string) error {
 
 	err := p.Repository.UpdateCrm(cpv, owner)
+	// log.Println("Retorno do UpdateCrm : ", err)
+
+	if err != nil {
+		log.Println("(CAMADA DE USE CASE) Erro ao atualizar o pedido no crm")
+		return err
+	}
+
+	log.Println("(CAMADA DE USE CASE) Pedido atualizado com sucesso no crm")
+
+	return nil
+
+}
+
+func (p *ProcessPedido) UseCaseInsert(cpv pedido.Cpv, owner string) error {
+
+	err := p.Repository.InsertCrm(cpv, owner)
+
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ProcessPedido) UseCaseDelete(id string, tipo string) error {
+
+	err := p.Repository.DeleteErp(id, tipo)
 
 	if err != nil {
 		return err
 	}
 	return nil
 
-}
-
-func (p *ProcessPedido) UseCaseInsert(cpv pedido.Cpv) error {
-	return nil
-}
-
-func (p *ProcessPedido) UseCaseDelete(id string) error {
-	return nil
 }

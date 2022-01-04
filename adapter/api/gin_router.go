@@ -50,8 +50,9 @@ func NewRouter() *gin.Engine {
 	v1.GET("/crm/erp/pedido/service", pedido.CallPedidoService) //Leva os dados para a CPV e IPV
 
 	//ERP -> CRM
-	v1.GET("/crm/erp/account/service", Cfr.CallAccountService)     //Leva os dados para a Account
-	v1.GET("/crm/erp/quote/service", pedido.CallPedidoQuoteErpCrm) //Leva os dados para a Quote
+	v1.GET("/crm/erp/account/service", Cfr.CallAccountService)       //Leva os dados para a Account
+	v1.GET("/crm/erp/quote/service", pedido.CallPedidoQuoteErpCrm)   //Leva os dados para a Quote
+	v1.GET("/crm/erp/quoteItem/service", pedido.CallQuoteItemErpCrm) //Leva os dados para a Quote
 
 	//CRM Utils
 	v1.POST("/crm/utils/log", utils.LogCsv) //Loga os dados no arquivo CSV

@@ -3,12 +3,13 @@ package utils
 import (
 	"database/sql"
 	"fmt"
-	_ "github.com/lib/pq"
-	"github.com/tidwall/gjson"
 	"io/ioutil"
 	"log"
 	"path/filepath"
 	"strings"
+
+	_ "github.com/lib/pq"
+	"github.com/tidwall/gjson"
 )
 
 func LogDatabase(clientId string, tabela string, tipo string, pk string, errCase bool, message string) {
@@ -72,14 +73,17 @@ func LogDatabaseDetails(tabela string, pk string, queryString string, dbResponse
 	defer dbLog.Close()
 
 	//Retirando todas as aspas da mensagem de erro, para evitar error no PG
-	queryString = strings.ReplaceAll(queryString, "'", "''")
+	// queryString = strings.ReplaceAll(queryString, "'", "''")
+	queryString = strings.ReplaceAll(queryString, "'", "")
+	dbResponse = strings.ReplaceAll(dbResponse, "'", "")
 
 	insertString := fmt.Sprintf("INSERT INTO tb_logs_details (tabela,pk,queryString,dbResponse,responseType) VALUES ('%s','%s','%s','%s','%s')", tabela, pk, queryString, dbResponse, responseType)
 
-	fmt.Println(insertString)
+	// fmt.Println(insertString)
 
 	_, queryError := dbLog.Exec(insertString)
 	if queryError != nil {
+		log.Println(insertString)
 		log.Println(queryError)
 		panic("Could not execute log_details query")
 	}

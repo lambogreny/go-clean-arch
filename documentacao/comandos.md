@@ -31,3 +31,9 @@ Criando um docker file
 
 Executando o container
 `docker run -p 8080:8080 go-crm:0.1`
+
+
+## Certificar de:
+
+- As camadas de serviço está logando em sucesso e falha a transação;
+- Todas as etapas da transação da camada de repositório está logando falha

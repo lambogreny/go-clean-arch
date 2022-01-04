@@ -1,12 +1,13 @@
 package erp_crm
 
 import (
+	"log"
+
 	crmRepository "github.com/augusto/imersao5-esquenta-go/adapter/repository/crm"
 	prd2 "github.com/augusto/imersao5-esquenta-go/entity/crm/prd"
 	"github.com/augusto/imersao5-esquenta-go/services/crm"
 	"github.com/augusto/imersao5-esquenta-go/usecase/crm/prd"
 	"github.com/augusto/imersao5-esquenta-go/utils"
-	"log"
 )
 
 func PrdService(clientId string) error {
@@ -46,7 +47,7 @@ func PrdService(clientId string) error {
 			}
 
 		case "U":
-			err := PrdUpdate(usecaseCrm, usecaseErp, x, crmOwner)
+			err := PrdInsertWithCheck(usecaseCrm, usecaseErp, x, crmOwner)
 			if err != nil {
 				utils.LogDatabase(clientId, "PRD", "I", x.Codigo_produto, true, err.Error())
 				return err
@@ -95,6 +96,7 @@ func PrdInsertWithCheck(usecaseCrm *prd.ProcessPrd, usecaseErp *prd.ProcessPrd, 
 	return nil
 }
 
+// Deprecated
 func PrdUpdate(usecaseCrm *prd.ProcessPrd, usecaseErp *prd.ProcessPrd, x prd2.Prd, crmOwner string) error {
 
 	err := usecaseCrm.UseCaseUpdate(x, crmOwner)
