@@ -32,6 +32,16 @@ Criando um docker file
 Executando o container
 `docker run -p 8080:8080 go-crm:0.1`
 
+Executando o conjunto
+`docker-compose up -d`
+
+## Fluxo
+
+- Buildar a imagem go
+- Colocar o nome da imagem no docker-compose.yml
+
+**obs** : Sempre que modificar algo no projeto, rodar o comando de build da imagem go.
+
 
 ## Certificar de:
 
