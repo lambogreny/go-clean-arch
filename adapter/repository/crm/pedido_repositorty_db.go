@@ -236,7 +236,7 @@ func (t PedidoRepositoryDbErp) DeleteSincroniza(owner string, id string) error {
 	return nil
 }
 
-//------------------------------------ ERP para CRM -------------------------------//
+//------------------------------------ ERP para CRM : CPV-------------------------------//
 
 func (t PedidoRepositoryDbErp) SelectCpv() ([]pedido.Cpv, error) {
 
@@ -286,6 +286,7 @@ func (t PedidoRepositoryDbErp) SelectCpv() ([]pedido.Cpv, error) {
 
 	if err != nil {
 		utils.LogDatabaseDetails("CPV", "SELECT", queryString, err.Error(), "")
+		return nil, err
 	}
 
 	cpvs := []pedido.Cpv{}
@@ -625,5 +626,121 @@ func (t PedidoRepositoryDbErp) DeleteErp(id string, tipo string) error {
 		return err
 	}
 
+	return nil
+}
+
+//------------------------------------ ERP para CRM : IPV-------------------------------//
+
+func (t PedidoRepositoryDbErp) SelectIpv() ([]pedido.Ipv, error) {
+
+	var controlLimitQuery string = "LIMIT 10"
+
+	queryString := utils.Msg(`SELECT
+								tipo,
+								pk,
+								numero,
+								item_pv,
+								codigo_item,
+								unidade,
+								qtde_pedida,
+								qtde_atendida,
+								preco_unit,
+								almoxarifado,
+								descricao_informada,
+								data_hora_inclusao,
+								finalidade,
+								data_entrega_item,
+								usuario_inclusao
+								from ipv
+								inner join tb_crm_sincroniza ON numero||codigo_item||item_pv = pk and tabela = 'IPV'
+								{{.controlLimitQuery}}
+								`,
+		map[string]interface{}{
+			"controlLimitQuery": controlLimitQuery,
+		})
+
+	// fmt.Println(queryString)
+
+	rows, err := t.db.Query(queryString)
+
+	if err != nil {
+		utils.LogDatabaseDetails("IPV", "SELECT", queryString, err.Error(), "")
+		return nil, err
+	}
+
+	ipvs := []pedido.Ipv{}
+
+	for rows.Next() {
+		ipv := pedido.Ipv{}
+
+		if err := rows.Scan(
+			&ipv.Tipo,
+			&ipv.Pk,
+			&ipv.Numero,
+			&ipv.ItemPv,
+			&ipv.CodigoItem,
+			&ipv.Unidade,
+			&ipv.QtdePedida,
+			&ipv.QtdeAtendida,
+			&ipv.PrecoUnit,
+			&ipv.Almoxarifado,
+			&ipv.DescricaoInformada,
+			&ipv.DataHoraInclusao,
+			&ipv.Finalidade,
+			&ipv.DataEntregaItem,
+			&ipv.UsuarioInclusao,
+		); err != nil {
+			log.Println(err.Error())
+			utils.LogDatabaseDetails("IPV", "SELECT", queryString, err.Error(), "")
+			return nil, err
+		}
+
+		ipvs = append(ipvs, ipv)
+	}
+
+	return ipvs, nil
+}
+
+func (t PedidoRepositoryDbErp) CheckUpdateCrmIpv(id string, owner string) (bool, error) {
+
+	queryString := fmt.Sprintf(`SELECT count(*) FROM %s.quote_item WHERE id = '%s' `, owner, id)
+
+	fmt.Println(queryString)
+
+	rows, err := t.db.Query(queryString)
+
+	if err != nil {
+		utils.LogDatabaseDetails("IPV", id, queryString, err.Error(), "")
+		return false, err
+	}
+
+	var count int
+
+	for rows.Next() {
+		if err := rows.Scan(&count); err != nil {
+			utils.LogDatabaseDetails("IPV", id, queryString, err.Error(), "")
+			return false, err
+		}
+	}
+
+	if count == 0 {
+		return false, nil
+	}
+
+	return true, nil
+}
+
+//#TODO
+func (t PedidoRepositoryDbErp) UpdateCrmIpv(ipv pedido.Ipv, owner string) error {
+	return nil
+}
+
+//#TODO
+func (t PedidoRepositoryDbErp) InsertCrmIpv(ipv pedido.Ipv, owner string) error {
+	return nil
+}
+
+//#TODO
+func (t PedidoRepositoryDbErp) DeleteCrmIpv(id string, owner string) error {
 	return nil
 }

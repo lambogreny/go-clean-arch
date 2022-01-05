@@ -172,7 +172,7 @@ func (p *ProcessPedido) UseCaseCallApi(payloads []pedido.PedidoPayload, extra he
 
 }
 
-//-------------------------------------------------------------- ERP -> CRM ---------------------------
+//-------------------------------------------------------------- ERP -> CRM : CPV ---------------------------
 func (p *ProcessPedido) UseCaseSelectCpv() ([]pedido.Cpv, error) {
 
 	cpv, err := p.Repository.SelectCpv()
@@ -224,6 +224,61 @@ func (p *ProcessPedido) UseCaseInsert(cpv pedido.Cpv, owner string) error {
 func (p *ProcessPedido) UseCaseDelete(id string, tipo string) error {
 
 	err := p.Repository.DeleteErp(id, tipo)
+
+	if err != nil {
+		return err
+	}
+	return nil
+
+}
+
+//-------------------------------------------------------------- ERP -> CRM : IPV ---------------------------
+func (p *ProcessPedido) UseCaseSelectIpv() ([]pedido.Ipv, error) {
+
+	ipv, err := p.Repository.SelectIpv()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return ipv, nil
+
+}
+
+func (p *ProcessPedido) UseCaseCheckUpdateCrmIpv(id string, owner string) (bool, error) {
+
+	resp, err := p.Repository.CheckUpdateCrmIpv(id, owner)
+
+	if err != nil {
+		return false, err
+	}
+	return resp, nil
+}
+
+func (P *ProcessPedido) UseCaseUpdateIpv(ipv pedido.Ipv, owner string) error {
+
+	err := P.Repository.UpdateCrmIpv(ipv, owner)
+
+	if err != nil {
+		return err
+	}
+	return nil
+
+}
+
+func (p *ProcessPedido) UseCaseInsertIpv(ipv pedido.Ipv, owner string) error {
+
+	err := p.Repository.InsertCrmIpv(ipv, owner)
+
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ProcessPedido) UseCaseDeleteIpv(id string, tipo string) error {
+
+	err := p.Repository.DeleteCrmIpv(id, tipo)
 
 	if err != nil {
 		return err

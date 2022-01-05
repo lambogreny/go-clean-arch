@@ -38,3 +38,21 @@ type Cpv struct {
 	ObsSimples        sql.NullString
 	CodRepresentante  sql.NullString
 }
+
+type Ipv struct {
+	Tipo               sql.NullString
+	Pk                 sql.NullString
+	Numero             sql.NullString
+	ItemPv             sql.NullString
+	CodigoItem         sql.NullString
+	Unidade            sql.NullString
+	QtdePedida         sql.NullString
+	QtdeAtendida       sql.NullString
+	PrecoUnit          sql.NullString
+	Almoxarifado       sql.NullString
+	DescricaoInformada sql.NullString
+	DataHoraInclusao   sql.NullString
+	Finalidade         sql.NullString
+	DataEntregaItem    sql.NullString
+	UsuarioInclusao    sql.NullString
+}

@@ -1,6 +1,7 @@
 package erp_crm
 
 import (
+	"fmt"
 	"log"
 	"strings"
 
@@ -183,3 +184,125 @@ func CpvInsertWithCheck(usecaseCrm *pedido.ProcessPedido, usecaseErp *pedido.Pro
 }
 
 // -------------------------------------------------------- ERP -> CRM : IPV ------------------------------------------------------------//
+
+func QuoteItemService(clientId string) error {
+	/*
+	*Crm : Todas as funções que operam no banco do CRM
+	*Erp : Todas as funções que operam no banco do ERP
+	 */
+
+	log.Println("Início do serviço de pegar dados da IPV e levar para a QuoteItem")
+	dbCrmConn, dbErpConn, ownerCrm, connError := crm.ServicesDatabases(clientId)
+
+	if connError != nil {
+		return connError
+	}
+
+	repoCrm := crmRepository.NewPedidoRepositoryDbErp(dbCrmConn)
+	repoErp := crmRepository.NewPedidoRepositoryDbErp(dbErpConn)
+
+	useCaseCrm := pedido.NewProcessPedido(repoCrm)
+	useCaseErp := pedido.NewProcessPedido(repoErp)
+
+	fmt.Println(useCaseCrm, useCaseErp)
+
+	//// ----------------------------------------------------------- Selecionando todas as linhas ------------------------------------------------------------//
+
+	data, err := useCaseErp.UseCaseSelectIpv()
+
+	if err != nil {
+		utils.LogDatabase(clientId, "IPV", "S", "SELECT", true, err.Error())
+		return err
+	}
+
+	fmt.Println("Dados de retorno : ", data)
+
+	//// ----------------------------------------------------------- Percorrendo as linhas e definindo as ações ------------------------------------------------------------//
+
+	for i, x := range data {
+		log.Println("Registro : ", i, " // id : ", x.Pk)
+
+		switch helpers.String(x.Tipo) {
+		case "I":
+			IErr := IpvInsertWithCheck(useCaseCrm, useCaseErp, x, ownerCrm, helpers.ExtraInfo{})
+
+			if IErr != nil {
+				switch {
+				//Para casos de duplicate key, apenas loga e continua o loop
+				case strings.Contains(IErr.Error(), "duplicate key"):
+					log.Println("Cai no duplicate key")
+					utils.LogDatabase(clientId, "CPV", "I", helpers.String(x.Pk), true, IErr.Error())
+					continue
+				default:
+					log.Println("Cai no erro default")
+					utils.LogDatabase(clientId, "CPV", "I", helpers.String(x.Pk), true, IErr.Error())
+					return IErr
+				}
+			}
+		case "U":
+			UErr := IpvInsertWithCheck(useCaseCrm, useCaseErp, x, ownerCrm, helpers.ExtraInfo{})
+
+			if UErr != nil {
+				switch {
+				//Para casos de duplicate key, apenas loga e continua o loop
+				case strings.Contains(UErr.Error(), "duplicate key"):
+					log.Println("Cai no duplicate key")
+					utils.LogDatabase(clientId, "CPV", "I", helpers.String(x.Pk), true, UErr.Error())
+					continue
+				default:
+					log.Println("Cai no erro default")
+					utils.LogDatabase(clientId, "CPV", "I", helpers.String(x.Pk), true, UErr.Error())
+					return UErr
+				}
+			}
+		}
+
+		utils.LogDatabase(clientId, "IPV", helpers.String(x.Tipo), helpers.String(x.Pk), false, "")
+	}
+
+	return nil
+}
+
+func IpvInsertWithCheck(usecaseCrm *pedido.ProcessPedido, usecaseErp *pedido.ProcessPedido, x pedido2.Ipv, crmOwner string, extra helpers.ExtraInfo) error {
+	log.Println("CASO : IPV INSERT WITH CHECK")
+
+	checkUpdate, err := usecaseCrm.UseCaseCheckUpdateCrmIpv(helpers.String(x.Pk), crmOwner)
+
+	if err != nil {
+		log.Println("Erro de checagem")
+		return err
+	}
+
+	switch checkUpdate {
+	case true:
+		log.Println("Chequei o registro e cai no Update")
+		UpdateErr := usecaseCrm.UseCaseUpdateIpv(x, crmOwner)
+
+		if UpdateErr != nil {
+			return UpdateErr
+		}
+
+		// deleteErr := usecaseErp.UseCaseDelete(helpers.String(x.Numero), helpers.String(x.Tipo))
+
+		// if deleteErr != nil {
+		// 	return deleteErr
+		// }
+
+	case false:
+		log.Println("Chequei o registro e cai no insert!")
+
+		// InsertErr := usecaseCrm.UseCaseInsert(x, crmOwner)
+
+		// if InsertErr != nil {
+		// 	return InsertErr
+		// }
+
+		// deleteErr := usecaseErp.UseCaseDelete(helpers.String(x.Numero), helpers.String(x.Tipo))
+
+		// if deleteErr != nil {
+		// 	return deleteErr
+		// }
+
+	}
+	return nil
+}

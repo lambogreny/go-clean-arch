@@ -50,16 +50,16 @@ func (t PedidoControllerErp) CallPedidoQuoteErpCrm(c *gin.Context) {
 func (t PedidoControllerErp) CallQuoteItemErpCrm(c *gin.Context) {
 	fmt.Println("Serviço que leva dados do ERP para o CRM da quote item")
 
-	// resp := erp_crm.QuoteItemService(c.Request.Header.Get("x-token"))
+	resp := erp_crm.QuoteItemService(c.Request.Header.Get("x-token"))
 
-	// if resp != nil {
-	// 	c.JSON(http.StatusConflict, utils.Error{
-	// 		StatusCode:  http.StatusConflict,
-	// 		Message:     resp.Error(),
-	// 		Description: "Falha ao realizar o processamento de integração",
-	// 	})
-	// 	return
-	// }
+	if resp != nil {
+		c.JSON(http.StatusConflict, utils.Error{
+			StatusCode:  http.StatusConflict,
+			Message:     resp.Error(),
+			Description: "Falha ao realizar o processamento de integração",
+		})
+		return
+	}
 
 	c.String(http.StatusOK, "OK")
 }
