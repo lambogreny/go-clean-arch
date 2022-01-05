@@ -278,7 +278,7 @@ func (p *ProcessPedido) UseCaseInsertIpv(ipv pedido.Ipv, owner string) error {
 
 func (p *ProcessPedido) UseCaseDeleteIpv(id string, tipo string) error {
 
-	err := p.Repository.DeleteCrmIpv(id, tipo)
+	err := p.Repository.DeleteErpIpv(id, tipo)
 
 	if err != nil {
 		return err

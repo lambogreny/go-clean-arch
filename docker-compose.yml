@@ -6,7 +6,7 @@ services:
   go-crm:
     container_name: go-crm
     restart: always
-    #A TESTAR AINDA
+    #Arquivo com as variáveis de ambiente
     env_file: .env
     image: go-crm:dev
     ports:
@@ -15,6 +15,7 @@ services:
   # Grafana para monitormento dos logs do CRM
   grafana:
     image: grafana/grafana
+    restart: always
     container_name: grafana
     volumes:
       - grafana_test_data:/var/lib/grafana

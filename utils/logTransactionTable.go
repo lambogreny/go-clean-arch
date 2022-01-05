@@ -35,7 +35,7 @@ func LogDatabase(clientId string, tabela string, tipo string, pk string, errCase
 	defer dbLog.Close()
 
 	//Retirando todas as aspas da mensagem de erro, para evitar error no PG
-	message = strings.ReplaceAll(message, "'", "")
+	message = strings.ReplaceAll(message, "'", "$")
 
 	// queryString := fmt.Sprintf("INSERT INTO tb_logs (cliente,tabela,tipo,pk,error,message) VALUES ('%s','%s','%s','%s','%v','%s')", clientId, tabela, tipo, pk, errCase, message)
 	queryString := fmt.Sprintf("INSERT INTO %s (cliente,tabela,tipo,pk,error,message) VALUES ('%s','%s','%s','%s','%v','%s')", os.Getenv("LOG_DATABASE_TABLE"), clientId, tabela, tipo, pk, errCase, message)
@@ -77,8 +77,8 @@ func LogDatabaseDetails(tabela string, pk string, queryString string, dbResponse
 
 	//Retirando todas as aspas da mensagem de erro, para evitar error no PG
 	// queryString = strings.ReplaceAll(queryString, "'", "''")
-	queryString = strings.ReplaceAll(queryString, "'", "")
-	dbResponse = strings.ReplaceAll(dbResponse, "'", "")
+	queryString = strings.ReplaceAll(queryString, "'", "$")
+	dbResponse = strings.ReplaceAll(dbResponse, "'", "$")
 
 	insertString := fmt.Sprintf("INSERT INTO %s (tabela,pk,queryString,dbResponse,responseType) VALUES ('%s','%s','%s','%s','%s')", os.Getenv("LOG_DETAILS_TABLE"), tabela, pk, queryString, dbResponse, responseType)
 

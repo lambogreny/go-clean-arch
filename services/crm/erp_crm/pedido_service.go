@@ -204,7 +204,7 @@ func QuoteItemService(clientId string) error {
 	useCaseCrm := pedido.NewProcessPedido(repoCrm)
 	useCaseErp := pedido.NewProcessPedido(repoErp)
 
-	fmt.Println(useCaseCrm, useCaseErp)
+	// fmt.Println(useCaseCrm, useCaseErp)
 
 	//// ----------------------------------------------------------- Selecionando todas as linhas ------------------------------------------------------------//
 
@@ -282,26 +282,26 @@ func IpvInsertWithCheck(usecaseCrm *pedido.ProcessPedido, usecaseErp *pedido.Pro
 			return UpdateErr
 		}
 
-		// deleteErr := usecaseErp.UseCaseDelete(helpers.String(x.Numero), helpers.String(x.Tipo))
+		deleteErr := usecaseErp.UseCaseDelete(helpers.String(x.Pk), helpers.String(x.Tipo))
 
-		// if deleteErr != nil {
-		// 	return deleteErr
-		// }
+		if deleteErr != nil {
+			return deleteErr
+		}
 
 	case false:
 		log.Println("Chequei o registro e cai no insert!")
 
-		// InsertErr := usecaseCrm.UseCaseInsert(x, crmOwner)
+		InsertErr := usecaseCrm.UseCaseInsertIpv(x, crmOwner)
 
-		// if InsertErr != nil {
-		// 	return InsertErr
-		// }
+		if InsertErr != nil {
+			return InsertErr
+		}
 
-		// deleteErr := usecaseErp.UseCaseDelete(helpers.String(x.Numero), helpers.String(x.Tipo))
+		deleteErr := usecaseErp.UseCaseDelete(helpers.String(x.Pk), helpers.String(x.Tipo))
 
-		// if deleteErr != nil {
-		// 	return deleteErr
-		// }
+		if deleteErr != nil {
+			return deleteErr
+		}
 
 	}
 	return nil

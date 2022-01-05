@@ -21,5 +21,5 @@ type PedidoRepository interface {
 	CheckUpdateCrmIpv(id string, owner string) (bool, error)
 	UpdateCrmIpv(ipv pedido.Ipv, owner string) error
 	InsertCrmIpv(ipv pedido.Ipv, owner string) error
-	DeleteCrmIpv(id string, owner string) error
+	DeleteErpIpv(id string, tipo string) error
 }

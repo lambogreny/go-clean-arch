@@ -730,17 +730,172 @@ func (t PedidoRepositoryDbErp) CheckUpdateCrmIpv(id string, owner string) (bool,
 	return true, nil
 }
 
-//#TODO
 func (t PedidoRepositoryDbErp) UpdateCrmIpv(ipv pedido.Ipv, owner string) error {
+	queryString := utils.Msg(`UPDATE {{.owner}}.quote_item SET
+									quote_id = '{{.quote_id}}',
+									itempv = '{{.itempv}}',
+									product_id = '{{.product_id}}',
+									unidade = '{{.unidade}}',
+									quantity = '{{.quantity}}',
+									qtdeatendida = '{{.qtdeatendida}}',
+									unit_price = '{{.unit_price}}',
+									almoxarifado = '{{.almoxarifado}}',
+									description = '{{.description}}',
+									finalidade = '{{.finalidade}}',
+									dataentregaitem = '{{.dataentregaitem}}',
+									created_at = '{{.created_at}}',
+									created_by_id = '{{.created_by_id}}'
+								WHERE id = '{{.id}}'
+							`, map[string]interface{}{
+		"owner":           owner,
+		"quote_id":        helpers.String(ipv.Numero),
+		"itempv":          helpers.String(ipv.ItemPv),
+		"product_id":      helpers.String(ipv.CodigoItem),
+		"unidade":         helpers.String(ipv.Unidade),
+		"quantity":        helpers.String(ipv.QtdePedida),
+		"qtdeatendida":    helpers.String(ipv.QtdeAtendida),
+		"unit_price":      helpers.String(ipv.PrecoUnit),
+		"almoxarifado":    helpers.String(ipv.Almoxarifado),
+		"description":     helpers.String(ipv.DescricaoInformada),
+		"finalidade":      helpers.String(ipv.Finalidade),
+		"dataentregaitem": helpers.StringDatetime(ipv.DataEntregaItem),
+		"created_at":      helpers.StringDatetime(ipv.DataHoraInclusao),
+		"created_by_id":   helpers.String(ipv.UsuarioInclusao),
+		"id":              helpers.String(ipv.Pk),
+	})
+
+	fmt.Println(queryString)
+	//Iniciando uma transação
+	ctx := context.Background()
+	tx, _ := t.db.BeginTx(ctx, nil)
+
+	_, err := tx.ExecContext(ctx, queryString)
+
+	if err != nil {
+		utils.LogDatabaseDetails("IPV", helpers.String(ipv.Pk), queryString, err.Error(), "")
+		log.Println("Erro ao atualizar CPV: ", err)
+		tx.Rollback()
+		return err
+	}
+
+	//Debug
+	// tx.Rollback()
+
+	commit := tx.Commit()
+
+	if commit != nil {
+		utils.LogDatabaseDetails("IPV", helpers.String(ipv.Pk), queryString, commit.Error(), "")
+		return commit
+	}
+
 	return nil
 }
 
-//#TODO
 func (t PedidoRepositoryDbErp) InsertCrmIpv(ipv pedido.Ipv, owner string) error {
+	queryString := utils.Msg(`INSERT INTO {{.owner}}.quote_item (
+							id,
+                            quote_id,
+							itempv,
+							product_id,
+                            unidade,
+							quantity,
+							qtdeatendida,
+							unit_price,
+							almoxarifado,
+                            description,
+							finalidade,
+							dataentregaitem,
+                            created_at,
+							created_by_id
+						) VALUES (
+							'{{.id}}',
+							'{{.quote_id}}',
+							'{{.itempv}}',
+							'{{.product_id}}',
+							'{{.unidade}}',
+							'{{.quantity}}',
+							'{{.qtdeatendida}}',
+							'{{.unit_price}}',
+							'{{.almoxarifado}}',
+							'{{.description}}',
+							'{{.finalidade}}',
+							'{{.dataentregaitem}}',
+							'{{.created_at}}',
+							'{{.created_by_id}}'
+                           
+						)`,
+		map[string]interface{}{
+			"owner":           owner,
+			"quote_id":        helpers.String(ipv.Numero),
+			"itempv":          helpers.String(ipv.ItemPv),
+			"product_id":      helpers.String(ipv.CodigoItem),
+			"unidade":         helpers.String(ipv.Unidade),
+			"quantity":        helpers.String(ipv.QtdePedida),
+			"qtdeatendida":    helpers.String(ipv.QtdeAtendida),
+			"unit_price":      helpers.String(ipv.PrecoUnit),
+			"almoxarifado":    helpers.String(ipv.Almoxarifado),
+			"description":     helpers.String(ipv.DescricaoInformada),
+			"finalidade":      helpers.String(ipv.Finalidade),
+			"dataentregaitem": helpers.StringDatetime(ipv.DataEntregaItem),
+			"created_at":      helpers.StringDatetime(ipv.DataHoraInclusao),
+			"created_by_id":   helpers.String(ipv.UsuarioInclusao),
+			"id":              helpers.String(ipv.Pk),
+		})
+	fmt.Println(queryString)
+	//Iniciando uma transação
+	ctx := context.Background()
+	tx, _ := t.db.BeginTx(ctx, nil)
+
+	_, err := tx.ExecContext(ctx, queryString)
+
+	if err != nil {
+		utils.LogDatabaseDetails("IPV", helpers.String(ipv.Pk), queryString, err.Error(), "")
+		log.Println("Erro ao atualizar CPV: ", err)
+		tx.Rollback()
+		return err
+	}
+
+	//Debug
+	// tx.Rollback()
+
+	commit := tx.Commit()
+
+	if commit != nil {
+		utils.LogDatabaseDetails("IPV", helpers.String(ipv.Pk), queryString, commit.Error(), "")
+		return commit
+	}
+
 	return nil
 }
 
-//#TODO
-func (t PedidoRepositoryDbErp) DeleteCrmIpv(id string, owner string) error {
+func (t PedidoRepositoryDbErp) DeleteErpIpv(id string, tipo string) error {
+	queryString := fmt.Sprintf(`DELETE FROM tb_crm_sincroniza WHERE pk = '%s' and tipo = '%s'`, id, tipo)
+
+	fmt.Println(queryString)
+
+	//Iniciando o contexto de transação
+	ctx := context.Background()
+	tx, _ := t.db.BeginTx(ctx, nil)
+
+	_, err := tx.ExecContext(ctx, queryString)
+
+	if err != nil {
+		//utils.LogFile("CRM/CFR", " delete", "CRITICAL ", err.Error(), queryString)
+		utils.LogDatabaseDetails("IPV", id, queryString, err.Error(), "")
+		tx.Rollback()
+		return err
+	}
+
+	//Para debug
+	// tx.Rollback()
+
+	commit := tx.Commit()
+
+	if commit != nil {
+		//utils.LogFile("CRM/CFR", " delete", "CRITICAL ", commit.Error(), queryString)
+		utils.LogDatabaseDetails("IPV", id, queryString, commit.Error(), "")
+		return err
+	}
+
 	return nil
 }
