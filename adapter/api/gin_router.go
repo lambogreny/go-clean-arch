@@ -30,6 +30,7 @@ func NewRouter() *gin.Engine {
 	utils := new(controllersCrm.SharedServicesController)
 
 	v1.GET("/health", health.Status)
+	v1.GET("/fakeLogs", health.GenerateLogs)
 	v1.POST("/transaction", transaction.NewTransaction)
 	v1.GET("/transaction", transaction.GetTransaction)
 	v1.DELETE("/transaction", transaction.DeleteTransaction)

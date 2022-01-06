@@ -43,6 +43,11 @@ Executando o conjunto
 **obs** : Sempre que modificar algo no projeto, rodar o comando de build da imagem go.
 
 
+## Grafana
+
+Usuário : admin
+Senha : admin
+
 ## Certificar de:
 
 - As camadas de serviço está logando em sucesso e falha a transação;

@@ -3,6 +3,8 @@
 ## Parado em :
   Desenvolvendo o update da quote Item
 
+- Endpoint de popular tabela de logs
+
 - Atualizar a tabela de pk
 
 - Construção do endpoint de log (LogCsv)
